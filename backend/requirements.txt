@@ -1,0 +1,8 @@
+fastapi==0.95.2
+uvicorn[standard]==0.23.2
+sqlalchemy==1.4.41
+databases[postgresql]==0.6.2
+pyjwt==2.10.1
+passlib[bcrypt]==1.7.4
+psycopg2-binary==2.9.10
+python-multipart==0.0.20
