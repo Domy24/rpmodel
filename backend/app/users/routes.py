@@ -7,7 +7,7 @@ from starlette import status
 
 from .auth import authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, get_current_active_user
 from .utils import get_password_hash, validate_email
-from .model_serializer import User, Token
+from .serializers import User, Token
 from .auth import db
 from .models import UserInDB
 

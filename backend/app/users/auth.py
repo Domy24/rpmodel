@@ -10,7 +10,7 @@ from jwt import InvalidTokenError
 from passlib.context import CryptContext
 from starlette import status
 from sqlalchemy.orm import sessionmaker
-from .model_serializer import TokenData, User
+from .serializers import TokenData, User
 from .db import engine
 from .models import UserInDB
 from .utils import verify_password
