@@ -32,6 +32,9 @@ services:
     depends_on:
       database:
         condition: service_healthy
+    command: bash -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+
+
 
   database:
     image: postgres:14
@@ -39,7 +42,7 @@ services:
     ports:
       - "5432:5432"
     env_file:
-      - .envs/.env.fastapi
+      - .envs/.env.postgres
     volumes:
       - ./data:/var/lib/postgresql/data
     healthcheck:
