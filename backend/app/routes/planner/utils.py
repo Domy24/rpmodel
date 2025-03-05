@@ -1,5 +1,6 @@
 import os
 
+from geopy.distance import geodesic
 from sqlalchemy import select
 
 from app.db import async_session_maker
@@ -14,6 +15,14 @@ key = os.getenv("GRAPHHOPPER_SECRET_KEY")
 def route_endpoint(start: tuple, end: tuple):
     start = f"{str(start[0])},{str(start[1])}"
     end = f"{str(end[0])},{str(end[1])}"
+    print((f"{graphhopper_route_base_url}"
+            f"&point={start}&point={end}"
+            f"&profile=car"
+            f"&key={key}"
+            f"&type=json"
+            f"&weighting=fastest"
+            f"&details=max_speed"
+            ))
     return (f"{graphhopper_route_base_url}"
             f"&point={start}&point={end}"
             f"&profile=car"
@@ -76,3 +85,42 @@ async def get_vehicle_parameters(vehicle) -> dict:
             "mu_r": model.mu_r
         }
 
+def find_common_subsequences(baseline, route):
+    common_subsequences = []
+    temp_sequence = []
+    route_edges = convert_from_point_to_edges(route)
+    baseline_edges = convert_from_point_to_edges(baseline)
+
+    route_set = set(route_edges)
+
+    for point in baseline_edges:
+        if point in route_set:
+            temp_sequence.append(point)
+        else:
+            if len(temp_sequence) >= 2:
+                common_subsequences.append(temp_sequence)
+            temp_sequence = []
+
+    if len(temp_sequence) >= 2:
+        common_subsequences.append(temp_sequence)
+
+    return common_subsequences
+
+
+def calculate_distance(sequence):
+    # sequence_edges = []
+    # for i in sequence:
+    #     sequence_edges.append(i["point"])
+
+    total_distance = 0
+    for i in range(len(sequence) - 1):
+        total_distance += geodesic(sequence[i], sequence[i + 1]).meters
+    return total_distance
+
+
+def convert_from_point_to_edges(point):
+    #converts object of type {"point" : (lat, lon), "speed" : X} to list of points
+    l = []
+    for i in point:
+        l.append(i["point"])
+    return l

@@ -54,6 +54,7 @@ app.include_router(
 
 @app.post("/station")
 async def get_station(point: dict) -> dict:
-    station = await station_search(point)
+    sp = shortest_path(point["start"], point["end"])
+    station = await station_search(sp, point)
     return station
 
