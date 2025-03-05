@@ -8,7 +8,7 @@ router = APIRouter()
 
 
 @router.post("/route", response_model=Path)
-async def generate_route(route: Route): #add try except for no route found
+async def generate_route(route: Route):  # add try except for no route found
     sp = shortest_path(route.start, route.end)
     if len(sp) > 0:
         return Path(start=route.start, end=route.end, points=sp)

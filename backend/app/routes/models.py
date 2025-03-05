@@ -2,14 +2,20 @@ from __future__ import annotations
 
 
 from sqlalchemy import Integer, Column, String, Boolean, JSON, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base, Mapped, mapped_column, relationship
 
-Base = declarative_base()
+from ..base import Base
+
+
 
 class Route(Base):
     __tablename__ = "route"
 
-    id = Column(Integer, primary_key=True, index=True)
-    edges = Column(JSON, nullable=False)
-    start = Column(String, nullable=False)
-    end = Column(String, nullable=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    edges: Mapped[dict] = mapped_column(JSON, nullable=False)
+    start: Mapped[str] = mapped_column(String, nullable=False)
+    end: Mapped[str] = mapped_column(String, nullable=False)
+
+    user_id: Mapped[int] = mapped_column(ForeignKey(column="user.id"), nullable=False)
+
+    user: Mapped["user"] = relationship("User", back_populates="route")

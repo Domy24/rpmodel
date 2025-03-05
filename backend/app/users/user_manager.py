@@ -5,7 +5,8 @@ from typing import Optional
 from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, UUIDIDMixin
 
-from .db import User, get_user_db
+from ..users.models import User
+from ..db import get_user_db
 
 SECRET = os.getenv("BACKEND_AUTH_SECRET")
 

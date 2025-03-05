@@ -6,9 +6,8 @@ from fastapi_users.db import SQLAlchemyBaseUserTableUUID, SQLAlchemyUserDatabase
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import declarative_base
 
-from .models import User
-
-Base = declarative_base()
+from .users.models import User
+from .base import Base
 
 DB_USER = os.getenv("DB_USER", "fastapi_user")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "fastapi_password")
