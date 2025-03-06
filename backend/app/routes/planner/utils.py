@@ -16,14 +16,6 @@ key = os.getenv("GRAPHHOPPER_SECRET_KEY")
 def route_endpoint(start: tuple, end: tuple):
     start = f"{str(start[0])},{str(start[1])}"
     end = f"{str(end[0])},{str(end[1])}"
-    print((f"{graphhopper_route_base_url}"
-           f"&point={start}&point={end}"
-           f"&profile=car"
-           f"&key={key}"
-           f"&type=json"
-           f"&weighting=fastest"
-           f"&details=max_speed"
-           ))
     return (f"{graphhopper_route_base_url}"
             f"&point={start}&point={end}"
             f"&profile=car"

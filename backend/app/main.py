@@ -3,15 +3,17 @@ from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.routes.planner.models import Path
-from app.routes.serializers import Route
+from app.routes.serializers import Route, ResponseRoute
 from app.routes.planner.spath import shortest_path
 from .db import async_session_maker
+from .routes.planner.bidirectional_search import route_planner
 from .routes.planner.station_search import station_search, evaluate_station_to_end, evaluate_start_to_station
 from .users.auth import fastapi_users
 from .users.auth import auth_backend
 from .users.models import User
 from .users.serializers import UserRead, UserCreate, UserUpdate
 from .routes.routes import router
+from app.routes.planner.utils import *
 from .vehicles.models import Vehicle
 
 app = FastAPI()
@@ -78,3 +80,17 @@ async def get_best_station(route: Route):
     }
     best_station = await evaluate_start_to_station(baseline, eval(route.end), parameters)
     return best_station
+
+
+@app.post("/route_planner", response_model=ResponseRoute)
+async def get_best_route(route: Route):
+    parameters = {
+        "soc0": 1,
+        "soc_min": 0.3,
+        "soh": 0.8,
+        "k": 0.9,
+        "energyUsable": 45
+    }
+    edges = await route_planner(route.start, route.end, parameters)
+    route = ResponseRoute(segments=edges)
+    return route

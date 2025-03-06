@@ -16,17 +16,18 @@ async def evaluate_station_to_end(baseline, end, parameters):
     point = compute_medium_point(baseline[0]["point"], baseline[-1]["point"])
     distance = calculate_distance(convert_from_point_to_edges(baseline)) / 2
     stations = await station_search(baseline, point, distance)
-    print(len(stations))
     best_station = stations[0]  # check is_feasile for first element
-    print(end)
-    best_route = shortest_path((best_station["AddressInfo"]["Latitude"], best_station["AddressInfo"]["Longitude"]),end)
+    best_station_point = (stations[0]["AddressInfo"]["Latitude"], stations[0]["AddressInfo"]["Longitude"])
+    best_route = convert_from_point_to_edges(shortest_path((best_station_point[0], best_station_point[1]),end))
     for station in stations[1:]:
         points = shortest_path((station["AddressInfo"]["Latitude"], station["AddressInfo"]["Longitude"]), end)
         route = Path(points=points)
+        feasible = await route.is_feasible(**parameters)
         if compute_reward_fcn(baseline, station, end=end) > compute_reward_fcn(baseline, best_station,
-                                                                           end=end) and route.is_feasible(**parameters):
-            best_station, best_route = station, route
-    return best_station, best_route
+                                                                           end=end) and feasible:
+            best_station_point = (station["AddressInfo"]["Latitude"], station["AddressInfo"]["Longitude"])
+            best_route = convert_from_point_to_edges(points)
+    return best_station_point, best_route
 
 
 async def evaluate_start_to_station(baseline, start, parameters):
@@ -34,21 +35,22 @@ async def evaluate_start_to_station(baseline, start, parameters):
     point = compute_medium_point(baseline[0]["point"], baseline[-1]["point"])
     distance = calculate_distance(convert_from_point_to_edges(baseline)) / 2
     stations = await station_search(baseline, point, distance)
-    print(len(stations))
-    best_station = stations[0]  # check is_feasile for first element
-    best_route = shortest_path(start,(best_station["AddressInfo"]["Latitude"], best_station["AddressInfo"]["Longitude"]))
+    best_station = stations[0] # check is_feasile for first element
+    best_station_point = (stations[0]["AddressInfo"]["Latitude"], stations[0]["AddressInfo"]["Longitude"])
+    best_route = convert_from_point_to_edges(shortest_path(start,(best_station_point[0], best_station_point[1])))
     for station in stations[1:]:
         points = shortest_path(start,(station["AddressInfo"]["Latitude"], station["AddressInfo"]["Longitude"]))
         route = Path(points=points)
+        feasible = await route.is_feasible(**parameters)
         if compute_reward_fcn(baseline, station, start=start) > compute_reward_fcn(baseline,
-                                                                           best_station, start=start) and route.is_feasible(**parameters):
-            best_station, best_route = station, route
-    return best_station, best_route
-
+                                                                           best_station, start=start) and feasible:
+            best_station_point = (station["AddressInfo"]["Latitude"], station["AddressInfo"]["Longitude"])
+            best_route = convert_from_point_to_edges(points)
+    return best_station_point, best_route
 
 async def station_search(baseline, point: tuple, distance=None):
     distance = 1 if distance is None else distance
-    max_results = 25
+    max_results = 10
 
     params = {
         "output": "json",
@@ -91,8 +93,6 @@ def compute_reward_fcn(baseline: list, station, start=None, end=None):
         baseline_points = convert_from_point_to_edges(baseline)
         sl = compute_shared_distance(baseline, route)
 
-        print((math.pow((sl / calculate_distance(baseline_points)) / (1.001 - (sl / calculate_distance(route_edges))),
-                        3) * pkw))
         return (math.pow((sl / calculate_distance(baseline_points)) / (1.001 - (sl / calculate_distance(route_edges))),
                          3) * pkw)
     elif end is not None:
@@ -105,8 +105,6 @@ def compute_reward_fcn(baseline: list, station, start=None, end=None):
         baseline_points = convert_from_point_to_edges(baseline)
         sl = compute_shared_distance(baseline, route)
 
-        print((math.pow((sl / calculate_distance(baseline_points)) / (1.001 - (sl / calculate_distance(route_edges))),
-                        3) * pkw))
         return (math.pow((sl / calculate_distance(baseline_points)) / (1.001 - (sl / calculate_distance(route_edges))),
                          3) * pkw)
 
