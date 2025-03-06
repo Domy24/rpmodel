@@ -11,22 +11,8 @@ key = os.getenv("GRAPHHOPPER_SECRET_KEY")
 
 def shortest_path(start, end) -> list[dict]:
     if type(start) is not tuple and type(end) is not tuple:
-        params = {
-            "q": start,
-            "key": key
-        }
-        response = requests.get(graphhopper_locations_base_url, params=params)
-        lat = response.json()["hits"][0]["point"]["lat"]
-        lon = response.json()["hits"][0]["point"]["lng"]
-        start = (lat, lon)
-        params = {
-            "q": end,
-            "key": key
-        }
-        response = requests.get(graphhopper_locations_base_url, params=params)
-        lat = response.json()["hits"][0]["point"]["lat"]
-        lon = response.json()["hits"][0]["point"]["lng"]
-        end = (lat, lon)
+        start = from_name_to_lat_lng(start)
+        end = from_name_to_lat_lng(end)
     response = requests.get(url=route_endpoint(start, end))
     data = response.json()
     if data["paths"][0]["distance"] > 0:

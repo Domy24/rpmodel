@@ -1,12 +1,13 @@
 import os
 
+import requests
+from geopy import Point
 from geopy.distance import geodesic
 from sqlalchemy import select
-
+import geopy
 from app.db import async_session_maker
-from app.routes.planner.constants import graphhopper_route_base_url
+from app.routes.planner.constants import graphhopper_route_base_url, graphhopper_locations_base_url
 from app.vehicles.models import Vehicle
-
 
 default_speed = 30
 key = os.getenv("GRAPHHOPPER_SECRET_KEY")
@@ -16,13 +17,13 @@ def route_endpoint(start: tuple, end: tuple):
     start = f"{str(start[0])},{str(start[1])}"
     end = f"{str(end[0])},{str(end[1])}"
     print((f"{graphhopper_route_base_url}"
-            f"&point={start}&point={end}"
-            f"&profile=car"
-            f"&key={key}"
-            f"&type=json"
-            f"&weighting=fastest"
-            f"&details=max_speed"
-            ))
+           f"&point={start}&point={end}"
+           f"&profile=car"
+           f"&key={key}"
+           f"&type=json"
+           f"&weighting=fastest"
+           f"&details=max_speed"
+           ))
     return (f"{graphhopper_route_base_url}"
             f"&point={start}&point={end}"
             f"&profile=car"
@@ -46,11 +47,11 @@ def calculate_speed_per_position(speeds, total_points):
 
 def driverMaxSpeed(k):
     if k == 0.9:
-        return 90/3.6
+        return 90 / 3.6
     if k == 0.6:
-        return 144/3.6
+        return 144 / 3.6
     if k == 0.5:
-        return 180/3.6
+        return 180 / 3.6
 
 
 def driverMaxAcc(k):
@@ -84,6 +85,7 @@ async def get_vehicle_parameters(vehicle) -> dict:
             "eta": model.motor_efficiency,
             "mu_r": model.mu_r
         }
+
 
 def find_common_subsequences(baseline, route):
     common_subsequences = []
@@ -119,8 +121,25 @@ def calculate_distance(sequence):
 
 
 def convert_from_point_to_edges(point):
-    #converts object of type {"point" : (lat, lon), "speed" : X} to list of points
+    # converts object of type {"point" : (lat, lon), "speed" : X} to list of points
     l = []
     for i in point:
         l.append(i["point"])
     return l
+
+
+def compute_medium_point(start, end):
+    point = ((start[0] + end[0]) / 2, (start[1] + end[1]) / 2)
+    return point
+
+
+def from_name_to_lat_lng(name):
+    params = {
+        "q": name,
+        "key": key
+    }
+    response = requests.get(graphhopper_locations_base_url, params=params)
+    lat = response.json()["hits"][0]["point"]["lat"]
+    lon = response.json()["hits"][0]["point"]["lng"]
+    point = (lat, lon)
+    return point
