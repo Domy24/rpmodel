@@ -6,5 +6,9 @@ class Route(BaseModel):
     end: str
 
 
-class ResponseRoute(BaseModel):
+class RouteSegments(BaseModel):
     segments: list
+
+
+class RouteList(BaseModel):
+    routes: list[tuple]
