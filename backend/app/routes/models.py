@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 
-from sqlalchemy import Integer, Column, String, Boolean, JSON, ForeignKey
+from sqlalchemy import Integer, String, JSON, ForeignKey
 from sqlalchemy.orm import declarative_base, Mapped, mapped_column, relationship
 
 from ..base import Base
@@ -16,6 +16,6 @@ class Route(Base):
     start: Mapped[str] = mapped_column(String, nullable=False)
     end: Mapped[str] = mapped_column(String, nullable=False)
 
-    user_id: Mapped[int] = mapped_column(ForeignKey(column="user.id"), nullable=False)
+    user_id: Mapped[str] = mapped_column(ForeignKey(column="user.id"), nullable=False)
 
     user: Mapped["user"] = relationship("User", back_populates="route")

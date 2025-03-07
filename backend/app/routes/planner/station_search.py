@@ -70,7 +70,6 @@ async def station_search(baseline, point: tuple, distance=None):
         stations += data
         counter += len(data)
         params["distance"] *= 2
-        print(counter)
     return stations
 
 
