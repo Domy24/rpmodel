@@ -21,11 +21,9 @@ async def get_best_route(route: Route):
         "k": 0.9,
         "energyUsable": 45
     }
-    edges = await route_planner(route.start, route.end, parameters)
-    route = RouteSegments(segments=edges)
+    edges, stations = await route_planner(route.start, route.end, parameters)
+    route = RouteSegments(segments=edges, stations=stations)
     return route
-
-
 @router.get("/users/me/routes", response_model=list)
 async def get_user_routes(user: User = Depends(fastapi_users.current_user())):
     if user:

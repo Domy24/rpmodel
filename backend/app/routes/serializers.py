@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -8,6 +10,7 @@ class Route(BaseModel):
 
 class RouteSegments(BaseModel):
     segments: list
+    stations: Optional[list] = []
 
 
 class RouteList(BaseModel):

@@ -13,6 +13,7 @@ async def route_planner(start, end, parameters):
     start_segment = []
     arrival_segment = []
     route = []
+    stations = []
     while not search_ended:
         baseline = shortest_path(start_edge, end_edge)
         direct_route_edges = convert_from_point_to_edges(baseline)
@@ -27,8 +28,10 @@ async def route_planner(start, end, parameters):
                 best_station, best_edges = await evaluate_start_to_station(baseline=baseline, start=start_edge, parameters=parameters)
                 start_edge = best_station
                 start_segment += best_edges
+                stations.append(best_station)
             else:
                 best_station, best_edges = await evaluate_station_to_end(baseline=baseline, end=end_edge, parameters=parameters)
                 end_edge = best_station
-                arrival_segment += best_edges
-    return route
+                arrival_segment = best_edges + arrival_segment
+                stations.append(best_station)
+    return route, stations

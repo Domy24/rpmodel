@@ -25,7 +25,7 @@ class Path(BaseModel):
         feasible = True
         counter = 1
         energyIntegral = 0
-        energyAvailable = energyUsable * (soc0 - soc_min * soh * k) / 0.8 * 3.6e6
+        energyAvailable = energyUsable * ((soc0 - soc_min) * soh * k) / 0.8 * 3.6e6
         actualSpeed = 0
         flag = True
         while counter < n_edges and flag:
