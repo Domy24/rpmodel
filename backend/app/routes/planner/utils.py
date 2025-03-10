@@ -120,9 +120,22 @@ def convert_from_point_to_edges(point):
     return l
 
 
-def compute_medium_point(start, end):
-    point = ((start[0] + end[0]) / 2, (start[1] + end[1]) / 2)
+def compute_k_point(start, end, k):
+    point = ((start[0] + end[0]) / k, (start[1] + end[1]) / k)
     return point
+
+
+def divide_and_extract(baseline, k):
+    indices = []
+    n = len(baseline)
+    step = n // (k + 1)
+    indices.append(0)
+    for i in range(1, k):
+        indices.append(i * step)
+    indices.append(n - 1)
+    extracted_points = [baseline[i] for i in indices]
+
+    return extracted_points
 
 
 def from_name_to_lat_lng(name):

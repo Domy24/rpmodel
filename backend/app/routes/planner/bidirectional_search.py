@@ -23,14 +23,20 @@ async def route_planner(start, end, parameters):
             search_ended = True
             route = start_segment + direct_route_edges + arrival_segment
         else:
+            k = 1
+            best_station = best_edges = None
             numstop += 1
             if numstop % 2 == 1:
-                best_station, best_edges = await evaluate_start_to_station(baseline=baseline, start=start_edge, parameters=parameters)
+                while best_station is None:
+                    best_station, best_edges = await evaluate_start_to_station(k, baseline=baseline, start=start_edge, parameters=parameters)
+                    k *= 2
                 start_edge = best_station
                 start_segment += best_edges
                 stations.append(best_station)
             else:
-                best_station, best_edges = await evaluate_station_to_end(baseline=baseline, end=end_edge, parameters=parameters)
+                while best_station is None:
+                    best_station, best_edges = await evaluate_station_to_end(k, baseline=baseline, end=end_edge, parameters=parameters)
+                    k *= 2
                 end_edge = best_station
                 arrival_segment = best_edges + arrival_segment
                 stations.append(best_station)

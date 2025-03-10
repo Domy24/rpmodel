@@ -7,16 +7,15 @@ import os
 
 from app.routes.planner.models import Path
 from app.routes.planner.spath import shortest_path
-from app.routes.planner.utils import calculate_distance, find_common_subsequences, convert_from_point_to_edges, compute_medium_point
+from app.routes.planner.utils import calculate_distance, find_common_subsequences, convert_from_point_to_edges, compute_k_point, divide_and_extract
 
 KEY = os.getenv("OCM_SECRET_KEY")
-from app.routes.planner.constants import ocm_base_url, MAX_DISTANCE, MIN_DISTANCE, MAX_STATIONS, MAX_RESULTS, DISTANCE
+from app.routes.planner.constants import ocm_base_url, MAX_DISTANCE, MIN_DISTANCE, MAX_STATIONS, MAX_RESULTS, DISTANCE, \
+    COUNTRY_ID_LIST
 
 
-async def evaluate_station_to_end(baseline, end, parameters):
-    point = compute_medium_point(baseline[0]["point"], baseline[-1]["point"])
-    distance = calculate_distance(convert_from_point_to_edges(baseline)) / 2
-    stations = await station_search(baseline, end, distance)
+async def evaluate_station_to_end(k, baseline, end, parameters):
+    stations = await station_search(baseline, end, k)
     best_station = {"name": "not_a_station"}
     best_station_point = best_route = None
     for station in stations:
@@ -29,10 +28,8 @@ async def evaluate_station_to_end(baseline, end, parameters):
     return best_station_point, best_route
 
 
-async def evaluate_start_to_station(baseline, start, parameters):
-    point = compute_medium_point(baseline[0]["point"], baseline[-1]["point"])
-    distance = calculate_distance(convert_from_point_to_edges(baseline)) / 2
-    stations = await station_search(baseline, start, distance)
+async def evaluate_start_to_station(k, baseline, start, parameters):
+    stations = await station_search(baseline, start, k)
     best_station = {"name": "not_a_station"}
     best_station_point = best_route = None
     for station in stations:
@@ -45,13 +42,14 @@ async def evaluate_start_to_station(baseline, start, parameters):
     return best_station_point, best_route
 
 
-async def station_search(baseline, point: tuple, distance=None):
+async def station_search(baseline, point: tuple, k):
     l = convert_from_point_to_edges(baseline)
-    line = polyline.encode([l[0], l[-1]])
+    r = divide_and_extract(l, k)
+    line = polyline.encode(r)
 
     params = {
         "output": "json",
-        "countrycode": "IT",
+        "countrycode": COUNTRY_ID_LIST,
         "maxresults": MAX_RESULTS,
         "polyline": line,
         "distance": DISTANCE,
@@ -65,7 +63,7 @@ async def station_search(baseline, point: tuple, distance=None):
         stations = stations_pruning(baseline, data, point)
         return stations
     except Exception as e:
-        raise Exception("No stations found")
+        raise Exception(str(e))
 
 
 def compute_reward_fcn(baseline: list, station, start=None, end=None):
