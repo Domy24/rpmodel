@@ -6,7 +6,7 @@ from geopy.distance import geodesic
 from sqlalchemy import select
 import geopy
 from app.db import async_session_maker
-from app.routes.planner.constants import graphhopper_route_base_url, graphhopper_locations_base_url
+from app.routes.planner.constants import graphhopper_route_base_url, graphhopper_locations_base_url, VEHICLE_TYPES
 from app.vehicles.models import Vehicle
 
 default_speed = 30
@@ -55,15 +55,73 @@ def driverMaxAcc(k):
         return 9
 
 
-def compute_required_power(cd_area, speed, weight_kg, eta, front_area, mu_r):
+def compute_required_power(types, t, n_pass, cd_area, speed, weight_kg, eta, front_area, mu_r):
+    alpha, beta, offset = get_hvac_parameters(types, t, n_pass)
+    p_hvac = 0
+    if t < 10:
+        p_hvac = (alpha * (10 - t) + offset) * (1 - beta * n_pass)
+    if 10 <= t < 16:
+        p_hvac = (alpha * (16 - t) + offset) * (1 - beta * n_pass)
+    if 16 <= t < 21:
+        p_hvac = (alpha * (21 - t) + offset)
+    if 21 <= t < 26:
+        p_hvac = (alpha * (t - 21) + offset)
+    if 26 <= t < 30:
+        p_hvac = (alpha * (t - 25) + offset) * (1 + beta * n_pass)
+    if 30 <= t:
+        p_hvac = (alpha * (t - 26) + offset) * (1 + beta * n_pass)
     ro = 1.225
     g = 9.81
     f_aero = 0.5 * ro * cd_area * front_area * speed * speed
     f_roll = mu_r * weight_kg * g
     f_total = f_aero + f_roll
-    power = f_total * speed
+    power = f_total * speed + p_hvac
     return power / eta
 
+def get_hvac_parameters(types, t, n_pass):
+    alpha, beta, offset = 0, 0, 0
+    if types == VEHICLE_TYPES["type1"]:
+        if t < 10:
+            alpha, beta, offset = 280, 0.05, 2010
+        if 10 <= t < 16:
+            alpha, beta, offset = 200, 0.03, 810
+        if 16 <= t < 21:
+            alpha, beta, offset = 150, 0, 60
+        if 21 <= t < 26:
+            alpha, beta, offset = 150, 0, 60
+        if 26 <= t < 30:
+            alpha, beta, offset = 190, 0.075, 660
+        if 30 <= t:
+            alpha, beta, offset = 240, 0.11, 1420
+
+    if types == VEHICLE_TYPES["type2"]:
+        if t < 10:
+            alpha, beta, offset = 190, 0.05, 1500
+        if 10 <= t < 16:
+            alpha, beta, offset = 110, 0.03, 700
+        if 16 <= t < 21:
+            alpha, beta, offset = 85, 0, 0
+        if 21 <= t < 26:
+            alpha, beta, offset = 85, 0, 0
+        if 26 <= t < 30:
+            alpha, beta, offset = 167, 0.075, 660
+        if 30 <= t:
+            alpha, beta, offset = 240, 0.11, 1420
+
+    if types == VEHICLE_TYPES["type3"]:
+        if t < 10:
+            alpha, beta, offset = 247, 0.05, 1950
+        if 10 <= t < 16:
+            alpha, beta, offset = 143, 0.03, 1053
+        if 16 <= t < 21:
+            alpha, beta, offset = 110.5, 0, 0
+        if 21 <= t < 26:
+            alpha, beta, offset = 110.5, 0, 0
+        if 26 <= t < 30:
+            alpha, beta, offset = 217.1, 0.075, 858
+        if 30 <= t:
+            alpha, beta, offset = 312, 0.11, 1846
+    return alpha, beta, offset
 
 async def get_vehicle_parameters(vehicle) -> dict:
     AsyncSessionLocal = async_session_maker

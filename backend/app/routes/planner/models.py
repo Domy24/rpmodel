@@ -11,15 +11,18 @@ class Path(BaseModel):
     end: Optional[str] = None
     points: list[dict]
 
-    async def is_feasible(self, soc0, soc_min, soh, k, energyUsable, vehicle="ciao") -> bool:
+    async def is_feasible(self, t, n_pass, soc0, soc_min, soh, k, energyUsable, vehicle="ciao") -> bool:
         # energyUsable in kWh
         # parameters = await get_vehicle_parameters(vehicle)
         parameters = {
+            "types": "sedan",
             "weight_kg": 1500.0,
             "cd_area": 0.32,
             "eta": 0.85,
             "front_area": 2.2,
             "mu_r": 0.01,
+            "t": t,
+            "n_pass": n_pass
         }
         n_edges = len(self.points) - 1
         feasible = True

@@ -3,6 +3,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from ..base import Base
 
+
 class Vehicle(Base):
     __tablename__ = 'vehicle'
 
