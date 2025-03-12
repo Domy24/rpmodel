@@ -1,4 +1,6 @@
 import os
+import time
+from random import random
 
 import requests
 from geopy import Point
@@ -78,6 +80,7 @@ def compute_required_power(types, t, n_pass, cd_area, speed, weight_kg, eta, fro
     power = f_total * speed + p_hvac
     return power / eta
 
+
 def get_hvac_parameters(types, t, n_pass):
     alpha, beta, offset = 0, 0, 0
     if types == VEHICLE_TYPES["type1"]:
@@ -122,6 +125,7 @@ def get_hvac_parameters(types, t, n_pass):
         if 30 <= t:
             alpha, beta, offset = 312, 0.11, 1846
     return alpha, beta, offset
+
 
 async def get_vehicle_parameters(vehicle) -> dict:
     AsyncSessionLocal = async_session_maker
@@ -206,3 +210,37 @@ def from_name_to_lat_lng(name):
     lon = response.json()["hits"][0]["point"]["lng"]
     point = (lat, lon)
     return point
+
+
+def max_distance(t, n_pass, soc0, soc_min, soh, k, energyUsable, vehicle="ciao") -> float:
+    #get parameters from vehicle parameter
+    parameters = {
+        "types": "sedan",
+        "weight_kg": 1500.0,
+        "cd_area": 0.32,
+        "eta": 0.85,
+        "front_area": 2.2,
+        "mu_r": 0.01,
+        "t": t,
+        "n_pass": n_pass
+    }
+    energy_available = energyUsable * ((soc0 - soc_min) * soh * k) / 0.8 * 3.6e6
+    total_distance = 0
+    actual_speed = 0
+    flag = True
+    print(energy_available)
+    while energy_available > 0 and flag:
+        next_speed = driverMaxSpeed(k)
+        acc = next_speed - actual_speed
+        acc = max(min(acc, driverMaxAcc(k)), -4.5)
+        acc += random()
+        p_batt = compute_required_power(**parameters, speed=actual_speed)
+        energy_available -= p_batt
+        if energy_available <= 0:
+            flag = False
+            break
+        actual_speed += acc
+        total_distance += actual_speed
+        print(f"ea: {energy_available} - total distance: {total_distance}")
+        time.sleep(0.5)
+    return total_distance

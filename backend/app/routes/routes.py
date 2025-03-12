@@ -17,15 +17,17 @@ async def get_route_service() -> RouteService:
 @router.post("/route", response_model=RouteSegments)
 async def get_best_route(route: Route, service: RouteService = Depends(get_route_service)):
     parameters = {
-        "soc0": 1,
-        "soc_min": 0.3,
-        "soh": 0.8,
-        "k": 0.9,
-        "energyUsable": 35,
-        "t": 21,
+        "soc0": 0.9,
+        "soc_min": 0.4,
+        "soh": 0.9,
+        "k": 0.5,
+        "energyUsable": 90,
+        "t": 11,
         "n_pass": 3
     }
     result = await service.get_best_route(route.start, route.end, parameters)
+    if len(result["segments"]) == 0 and len(result["stations"]) == 0:
+        return RouteSegments(detail="Route not found.")
     return RouteSegments(segments=result["segments"], stations=result["stations"])
 
 

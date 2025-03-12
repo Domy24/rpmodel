@@ -11,40 +11,46 @@ from app.routes.planner.utils import calculate_distance, find_common_subsequence
 
 KEY = os.getenv("OCM_SECRET_KEY")
 from app.routes.planner.constants import ocm_base_url, MAX_DISTANCE, MIN_DISTANCE, MAX_STATIONS, MAX_RESULTS, DISTANCE, \
-    COUNTRY_ID_LIST
+    COUNTRY_ID_LIST, MAX_ATTEMPTS, MAX_POINTS
 
 
-async def evaluate_station_to_end(k, baseline, end, parameters):
-    stations = await station_search(baseline, end, k)
-    best_station = {"name": "not_a_station"}
+async def evaluate_station_to_end(baseline, end, parameters):
+    stations = await station_search(baseline, end)
     best_station_point = best_route = None
+    best_reward = float("-inf")
     for station in stations:
-        points = shortest_path((station["AddressInfo"]["Latitude"], station["AddressInfo"]["Longitude"]), end)
-        route = Path(points=points)
-        feasible = await route.is_feasible(**parameters)
-        if compute_reward_fcn(baseline, station, end=end) > compute_reward_fcn(baseline, best_station, end=end) and feasible:
-            best_station_point = (station["AddressInfo"]["Latitude"], station["AddressInfo"]["Longitude"])
-            best_route = convert_from_point_to_edges(points)
+        actual_reward = compute_reward_fcn(baseline, station, end=end)
+        if actual_reward > best_reward:
+            points = shortest_path((station["AddressInfo"]["Latitude"], station["AddressInfo"]["Longitude"]), end)
+            route = Path(points=points)
+            best_reward = actual_reward
+            feasible = await route.is_feasible(**parameters)
+            if feasible:
+                best_station_point = (station["AddressInfo"]["Latitude"], station["AddressInfo"]["Longitude"])
+                best_route = convert_from_point_to_edges(points)
     return best_station_point, best_route
 
 
-async def evaluate_start_to_station(k, baseline, start, parameters):
-    stations = await station_search(baseline, start, k)
-    best_station = {"name": "not_a_station"}
+async def evaluate_start_to_station(baseline, start, parameters):
+    stations = await station_search(baseline, start)
     best_station_point = best_route = None
+    best_reward = float("-inf")
     for station in stations:
-        points = shortest_path(start, (station["AddressInfo"]["Latitude"], station["AddressInfo"]["Longitude"]))
-        route = Path(points=points)
-        feasible = await route.is_feasible(**parameters)
-        if compute_reward_fcn(baseline, station, start=start) > compute_reward_fcn(baseline, best_station, start=start) and feasible:
-            best_station_point = (station["AddressInfo"]["Latitude"], station["AddressInfo"]["Longitude"])
-            best_route = convert_from_point_to_edges(points)
+        actual_reward = compute_reward_fcn(baseline, station, start=start)
+        if actual_reward > best_reward:
+            points = shortest_path(start, (station["AddressInfo"]["Latitude"], station["AddressInfo"]["Longitude"]))
+            route = Path(points=points)
+            best_reward = actual_reward
+            feasible = await route.is_feasible(**parameters)
+            if feasible:
+                best_station_point = (station["AddressInfo"]["Latitude"], station["AddressInfo"]["Longitude"])
+                best_route = convert_from_point_to_edges(points)
     return best_station_point, best_route
 
 
-async def station_search(baseline, point: tuple, k):
+async def station_search(baseline, point: tuple):
     l = convert_from_point_to_edges(baseline)
-    r = divide_and_extract(l, k)
+    r = divide_and_extract(l, MAX_POINTS)
     line = polyline.encode(r)
 
     params = {
@@ -54,21 +60,22 @@ async def station_search(baseline, point: tuple, k):
         "polyline": line,
         "distance": DISTANCE,
         "distanceunit": "km",
-        "key": KEY
     }
+    counter = 1
+    while counter < MAX_ATTEMPTS:
+        try:
+            response = requests.get(ocm_base_url, params=params)
+            data = response.json()
+            stations = stations_pruning(baseline, data, point, counter)
+            return stations
+        except Exception as e:
+            params["distance"] *= 2
+            params["maxresults"] *= 2
+            counter += 1
 
-    try:
-        response = requests.get(ocm_base_url, params=params)
-        data = response.json()
-        stations = stations_pruning(baseline, data, point)
-        return stations
-    except Exception as e:
-        raise Exception(str(e))
 
 
 def compute_reward_fcn(baseline: list, station, start=None, end=None):
-    if "name" in station:
-        return float("-inf")
     pkw = 0
     for connection in station["Connections"]:
         if connection["PowerKW"] is not None:
@@ -109,11 +116,11 @@ def compute_shared_distance(baseline, route):
     return total_shared_distance
 
 
-def stations_pruning(baseline, stations, point):
+def stations_pruning(baseline, stations, point, k):
     length = calculate_distance(convert_from_point_to_edges(baseline))/1000
     pruned_stations = []
     for station in stations:
         distance = geodesic(point, (station["AddressInfo"]["Latitude"], station["AddressInfo"]["Longitude"])).kilometers
-        if MIN_DISTANCE(length) < distance <= MAX_DISTANCE(length) and len(pruned_stations) <= MAX_STATIONS:
+        if MIN_DISTANCE(length, k) < distance <= MAX_DISTANCE(length, k) and len(pruned_stations) <= MAX_STATIONS:
             pruned_stations.append(station)
     return pruned_stations

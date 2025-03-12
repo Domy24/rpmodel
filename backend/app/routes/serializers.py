@@ -9,8 +9,9 @@ class Route(BaseModel):
 
 
 class RouteSegments(BaseModel):
-    segments: list
+    segments: Optional[list] = []
     stations: Optional[list] = []
+    detail: Optional[str] = None
 
 
 class RouteList(BaseModel):

@@ -18,7 +18,6 @@ services:
     tty: true
     command: bash -c "npm run dev -- --host"
 
-
   backend:
     build:
       context: ./backend
@@ -33,8 +32,8 @@ services:
       database:
         condition: service_healthy
     command: bash -c "uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
-
-
+    networks:
+      - shared_network
 
   database:
     image: postgres:14
@@ -50,3 +49,9 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - shared_network
+
+networks:
+  shared_network:
+    external: true

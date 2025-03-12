@@ -3,7 +3,8 @@ from typing import Optional
 
 from pydantic import BaseModel
 from geopy.distance import geodesic
-from .utils import driverMaxSpeed, driverMaxAcc, get_vehicle_parameters, compute_required_power
+from .utils import driverMaxSpeed, driverMaxAcc, get_vehicle_parameters, compute_required_power, calculate_distance, \
+    convert_from_point_to_edges, max_distance
 
 
 class Path(BaseModel):
@@ -16,11 +17,11 @@ class Path(BaseModel):
         # parameters = await get_vehicle_parameters(vehicle)
         parameters = {
             "types": "sedan",
-            "weight_kg": 1500.0,
-            "cd_area": 0.32,
-            "eta": 0.85,
-            "front_area": 2.2,
-            "mu_r": 0.01,
+            "weight_kg": 2200.0 + n_pass * 85,
+            "cd_area": 0.29,
+            "eta": 0.9,
+            "front_area": 2.1,
+            "mu_r": 0.009,
             "t": t,
             "n_pass": n_pass
         }

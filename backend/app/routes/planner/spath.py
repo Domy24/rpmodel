@@ -10,8 +10,9 @@ key = os.getenv("GRAPHHOPPER_SECRET_KEY")
 
 
 def shortest_path(start, end) -> list[dict]:
-    if type(start) is not tuple and type(end) is not tuple:
+    if not isinstance(start, tuple):
         start = from_name_to_lat_lng(start)
+    if not isinstance(end, tuple):
         end = from_name_to_lat_lng(end)
     response = requests.get(url=route_endpoint(start, end))
     data = response.json()

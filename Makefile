@@ -1,4 +1,5 @@
 env ?= docker-compose
+mirror ?= ./ocm-mirror/docker-compose
 
 run:
 	docker compose -f ${env}.yaml up --build
@@ -12,3 +13,8 @@ makemigrations:
 populate_vehicles:
 	docker compose -f ${env}.yaml exec backend sh -c "python -m populate_vehicles"
 
+ocm:
+	docker compose -f ${mirror}.yml up -d
+
+network:
+	docker network create shared_network
