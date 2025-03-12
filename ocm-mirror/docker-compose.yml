@@ -1,0 +1,29 @@
+version: '2'
+services:
+  app:
+    build: .
+    links:
+      - db:mongodb
+    networks:
+      - shared_network
+
+  haproxy:
+    build:
+      context: .
+      dockerfile: haproxy.Dockerfile
+    ports:
+      - 6000:80
+    links:
+      - app:app
+    networks:
+      - shared_network
+
+  db:
+    image: mongo:4.2
+    command: mongod --logpath=/dev/null
+    networks:
+      - shared_network
+
+networks:
+  shared_network:
+    external: true
