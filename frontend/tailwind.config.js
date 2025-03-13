@@ -5,7 +5,16 @@ export default {
     "./src/**/*.{vue,js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        primary: {
+          DEFAULT: '#4F46E5',
+          light: '#818CF8',
+          dark: '#3730A3',
+        },
+
+      },
+    },
   },
   plugins: [
       require('@tailwindcss/forms'),

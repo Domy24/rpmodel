@@ -1,47 +1,74 @@
 <template>
-  <div class="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-    <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-      <img class="mx-auto h-10 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" alt="Your Company" />
-      <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Sign in to your account</h2>
-    </div>
+    <div class="bg-surface-50 dark:bg-surface-950 px-6 py-20 md:px-12 lg:px-20">
+        <div class="bg-surface-0 dark:bg-surface-900 p-6 shadow rounded-border w-full lg:w-6/12 mx-auto">
+            <div class="text-center mb-8">
+                <svg class="mb-4 mx-auto fill-surface-600 dark:fill-surface-200 h-16" viewBox="0 0 30 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        fill-rule="evenodd"
+                        clip-rule="evenodd"
+                        d="M20.7207 6.18211L14.9944 3.11148L3.46855 9.28678L0.579749 7.73444L14.9944 0L23.6242 4.62977L20.7207 6.18211ZM14.9996 12.3574L26.5182 6.1821L29.4216 7.73443L14.9996 15.4621L6.37724 10.8391L9.27337 9.28677L14.9996 12.3574ZM2.89613 16.572L0 15.0196V24.2656L14.4147 32V28.8953L2.89613 22.7132V16.572ZM11.5185 18.09L0 11.9147V8.81001L14.4147 16.5376V25.7904L11.5185 24.2312V18.09ZM24.2086 15.0194V11.9147L15.5788 16.5377V31.9998L18.475 30.4474V18.09L24.2086 15.0194ZM27.0969 22.7129V10.3623L30.0004 8.81V24.2653L21.3706 28.895V25.7904L27.0969 22.7129Z"
+                    />
+                </svg>
 
-    <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-      <form class="space-y-6" action="#" method="POST">
-        <div>
-          <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Email address</label>
-          <div class="mt-2">
-            <input id="email" name="email" type="email" autocomplete="email" required="" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
-          </div>
-        </div>
-
-        <div>
-          <div class="flex items-center justify-between">
-            <label for="password" class="block text-sm font-medium leading-6 text-gray-900">Password</label>
-            <div class="text-sm">
-              <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-500">Forgot password?</a>
+                <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Welcome Back</div>
+                <span class="primary-color dark:text-surface-200 font-medium leading-normal">Don't have an account?</span>
+                <a  class="font-medium no-underline ml-2 primary-color-text cursor-pointer">Create today!</a>
             </div>
-          </div>
-          <div class="mt-2">
-            <input id="password" name="password" type="password" autocomplete="current-password" required="" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
-          </div>
-        </div>
 
-        <div>
-          <button type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Sign in</button>
+            <div>
+              <Form v-slot="$form" :initialValues :resolver="resolver" :validateOnValueUpdate="false" :validateOnBlur="true" @submit="onFormSubmit">
+                <label for="email1" class="text-surface-900 dark:text-surface-0 font-medium mb-2 block">Email</label>
+                <InputText id="email1" name="username" type="text" placeholder="Email address" class="w-full mb-4" />
+                <Message v-if="$form.username?.invalid" severity="error" size="small" variant="simple">{{ $form.username.error.message }}</Message>
+                <label for="password1" class="text-surface-900 dark:text-surface-0 font-medium mb-2 block">Password</label>
+                <InputText id="password1" name="password" type="password" placehoder="Password" class="w-full mb-4" />
+                <Message v-if="$form.password?.invalid" severity="error" size="small" variant="simple">{{ $form.password.error.message }}</Message>
+                <Button :loading="isLoading" type="submit" label="Sign In" icon="pi pi-sign-in !text-xl !leading-none" class="w-full top-2" />
+              </Form>
+            </div>
         </div>
-      </form>
-
-      <p class="mt-10 text-center text-sm text-gray-500">
-        Not a member?
-        {{ ' ' }}
-        <a href="#" class="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Start a 14 day free trial</a>
-      </p>
     </div>
-  </div>
 </template>
-
 <script>
-export default {
-  name: "LoginView"
+import {yupResolver} from '@primevue/forms/resolvers/yup';
+import {login} from "@/backend/backend.js";
+import {Form} from "@primevue/forms";
+import {InputText, Message, useToast} from "primevue";
+import Button from "primevue/button";
+import {logInValidationSchema} from "@/validators/validators.js";
+
+
+export default{
+  name: "LoginView",
+    components: { Form, InputText, Message, Button },
+  data () {
+    return {
+      initialValues : {
+        isLoading: false,
+        username : "",
+        password : "",
+      },
+      resolver: yupResolver( logInValidationSchema() )
+    }
+  },
+  methods: {
+     onFormSubmit ({ valid, values }) {
+        if(valid){
+          this.isLoading = true
+          login(values.username, values.password)
+              .then((response) => {
+                  this.isLoading = false
+                  this.$router.push(response.redirect)
+                  this.$toast.add(response.toast)
+              })
+              .catch((error) => {
+                  console.log(error.error)
+                  this.$toast.add(error.toast)
+                })
+        }
+    },
+  }
 }
+
+
 </script>

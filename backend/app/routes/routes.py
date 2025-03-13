@@ -24,6 +24,7 @@ async def get_best_route(route: Route, service: RouteService = Depends(get_route
         "energyUsable": 90,
         "t": 11,
         "n_pass": 3
+        # "vehicle" :
     }
     result = await service.get_best_route(route.start, route.end, parameters)
     if len(result["segments"]) == 0 and len(result["stations"]) == 0:

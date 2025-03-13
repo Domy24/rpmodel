@@ -30,7 +30,8 @@ async def route_planner(start, end, parameters):
         else:
             numstop += 1
             if numstop % 2 == 1:
-                best_station, best_edges = await evaluate_start_to_station(baseline=baseline, start=start_edge, parameters=parameters)
+                best_station, best_edges = await evaluate_start_to_station(baseline=baseline, start=start_edge,
+                                                                           parameters=parameters)
                 if best_station is not None:
                     start_edge = best_station
                     start_segment += best_edges
@@ -38,7 +39,8 @@ async def route_planner(start, end, parameters):
                 else:
                     return [], []
             else:
-                best_station, best_edges = await evaluate_station_to_end(baseline=baseline, end=end_edge, parameters=parameters)
+                best_station, best_edges = await evaluate_station_to_end(baseline=baseline, end=end_edge,
+                                                                         parameters=parameters)
                 if best_station is not None:
                     end_edge = best_station
                     arrival_segment = best_edges + arrival_segment
@@ -46,4 +48,3 @@ async def route_planner(start, end, parameters):
                 else:
                     return [], []
     return route, stations
-

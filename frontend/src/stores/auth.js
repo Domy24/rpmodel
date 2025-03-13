@@ -1,22 +1,33 @@
-import { defineStore } from 'pinia';
+import {defineStore} from 'pinia';
+import router from "@/router/index.js";
 
-export const useAuthStore = defineStore({
-  id: 'authStore',
-  state: () => ({
-    authToken: null, // Token di autenticazione
-  }),
-  getters: {
-    isAuthenticated: (state) => state.authToken !== null, // Controlla se l'utente è autenticato
-  },
-  actions: {
-    login(token) {
-      this.authToken = token; // Imposta il token di autenticazione
+export const useAuthStore = defineStore("authStore", {
+    id: 'authStore',
+    state: () => ({
+        authToken: null,
+    }),
+    getters: {
+        isAuthenticated: (state) => state.authToken !== null,
     },
-    logout() {
-      this.authToken = null; // Rimuove il token di autenticazione
+    actions: {
+        login(token) {
+            this.setToken(token);
+        },
+        logout() {
+            this.authToken = null;
+            localStorage.removeItem('token');
+        },
+        setToken(token) {
+            this.authToken = token;
+            localStorage.setItem('token', token);
+        },
+        initializeAuthStore() {
+            const token = localStorage.getItem('token')
+            if (token) {
+                this.login(token);
+                router.push({name: "home"})
+            }
+        }
     },
-    setToken(token) {
-      this.authToken = token; // Aggiorna il token di autenticazione
-    },
-  },
+
 });
