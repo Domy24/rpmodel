@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from geopy.distance import geodesic
 from .utils import driverMaxSpeed, driverMaxAcc, get_vehicle_parameters, compute_required_power, calculate_distance, \
     convert_from_point_to_edges, max_distance
+from ..serializers import VehicleParameters
 
 
 class Path(BaseModel):
@@ -12,24 +13,25 @@ class Path(BaseModel):
     end: Optional[str] = None
     points: list[dict]
 
-    async def is_feasible(self, t, n_pass, soc0, soc_min, soh, k, energyUsable, vehicle="ciao") -> bool:
+    async def is_feasible(self, t, n_pass, soc0, soc_min, soh, k, vehicle_parameters: VehicleParameters) -> bool:
         # energyUsable in kWh
         # parameters = await get_vehicle_parameters(vehicle)
         parameters = {
-            "types": "sedan",
-            "weight_kg": 2200.0 + n_pass * 85,
-            "cd_area": 0.29,
-            "eta": 0.9,
-            "front_area": 2.1,
-            "mu_r": 0.009,
+            "types": vehicle_parameters.vtype,
+            "weight_kg": vehicle_parameters.weight_kg + n_pass * 85,
+            "cd_area": vehicle_parameters.cd_area,
+            "eta": vehicle_parameters.motor_efficiency,
+            "front_area": vehicle_parameters.front_area,
+            "mu_r": vehicle_parameters.mu_r,
             "t": t,
             "n_pass": n_pass
         }
+        print(t, n_pass, soc0, soc_min, soh, k)
         n_edges = len(self.points) - 1
         feasible = True
         counter = 1
         energyIntegral = 0
-        energyAvailable = energyUsable * ((soc0 - soc_min) * soh * k) / 0.8 * 3.6e6
+        energyAvailable = vehicle_parameters.energy_usable * ((soc0 - soc_min) * soh * k) / 0.8 * 3.6e6
         actualSpeed = 0
         flag = True
         while counter < n_edges and flag:

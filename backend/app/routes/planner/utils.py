@@ -138,6 +138,7 @@ async def get_vehicle_parameters(vehicle) -> dict:
             "front_area": model.front_area,
             "eta": model.motor_efficiency,
             "mu_r": model.mu_r
+            #add type and energy_usable field
         }
 
 

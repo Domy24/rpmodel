@@ -14,7 +14,7 @@ from app.routes.planner.constants import ocm_base_url, MAX_DISTANCE, MIN_DISTANC
     COUNTRY_ID_LIST, MAX_ATTEMPTS, MAX_POINTS
 
 
-async def evaluate_station_to_end(baseline, end, parameters):
+async def evaluate_station_to_end(baseline, end, env_parameters, vehicle_parameters):
     stations = await station_search(baseline, end)
     best_station_point = best_route = None
     best_reward = float("-inf")
@@ -24,14 +24,14 @@ async def evaluate_station_to_end(baseline, end, parameters):
             points = shortest_path((station["AddressInfo"]["Latitude"], station["AddressInfo"]["Longitude"]), end)
             route = Path(points=points)
             best_reward = actual_reward
-            feasible = await route.is_feasible(**parameters)
+            feasible = await route.is_feasible(**env_parameters, vehicle_parameters=vehicle_parameters)
             if feasible:
                 best_station_point = (station["AddressInfo"]["Latitude"], station["AddressInfo"]["Longitude"])
                 best_route = convert_from_point_to_edges(points)
     return best_station_point, best_route
 
 
-async def evaluate_start_to_station(baseline, start, parameters):
+async def evaluate_start_to_station(baseline, start, env_parameters, vehicle_parameters):
     stations = await station_search(baseline, start)
     best_station_point = best_route = None
     best_reward = float("-inf")
@@ -41,7 +41,7 @@ async def evaluate_start_to_station(baseline, start, parameters):
             points = shortest_path(start, (station["AddressInfo"]["Latitude"], station["AddressInfo"]["Longitude"]))
             route = Path(points=points)
             best_reward = actual_reward
-            feasible = await route.is_feasible(**parameters)
+            feasible = await route.is_feasible(**env_parameters, vehicle_parameters=vehicle_parameters)
             if feasible:
                 best_station_point = (station["AddressInfo"]["Latitude"], station["AddressInfo"]["Longitude"])
                 best_route = convert_from_point_to_edges(points)

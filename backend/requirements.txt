@@ -13,3 +13,4 @@ geopy==2.4.1
 fastapi-users==14.0.1
 fastapi-users-db-sqlalchemy==7.0.0
 alembic==1.14.1
+jose==1.0.0

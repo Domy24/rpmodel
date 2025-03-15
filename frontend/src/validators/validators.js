@@ -17,7 +17,10 @@ export const logInValidationSchema = () => {
 
 export const parametersValidationSchema = ()  => {
     return yup.object().shape({
-            socMin: yup.number().required("socMin è obbligatorio"),
+            socMin: yup.number()
+                .min(0, "SoCmin deve essere positivo")
+                .lessThan(100, "SoCmin deve essere minore del 100%")
+                .required("socMin è obbligatorio"),
             soc0: yup
               .number()
               .when('socMin', (socMin, schema) =>
@@ -30,7 +33,7 @@ export const parametersValidationSchema = ()  => {
                 .required(),
             nPass: yup.number()
                 .integer("Il numero di passeggeri deve essere un intero.")
-                .max(5, "Numero di passeggeri limitato a 5"),
+                .max(4, "Numero di passeggeri limitato a 5"),
             temperature: yup.number()
                 .min(-50, "Inserire valori superiori a -50°")
                 .max(50,"Inserire valori inferiori a 50°" )

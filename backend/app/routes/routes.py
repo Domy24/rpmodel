@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 from app.db import async_session_maker
-from app.routes.serializers import Route, RouteSegments
+from app.routes.serializers import Route, RouteSegments, RouteParameters
 from app.routes.service.service import RouteService
 from app.users.auth import fastapi_users
 from app.users.models import User
@@ -15,26 +14,24 @@ async def get_route_service() -> RouteService:
 
 
 @router.post("/route", response_model=RouteSegments)
-async def get_best_route(route: Route, service: RouteService = Depends(get_route_service)):
-    parameters = {
-        "soc0": 0.9,
-        "soc_min": 0.4,
-        "soh": 0.9,
-        "k": 0.5,
-        "energyUsable": 90,
-        "t": 11,
-        "n_pass": 3
-        # "vehicle" :
-    }
-    result = await service.get_best_route(route.start, route.end, parameters)
-    if len(result["segments"]) == 0 and len(result["stations"]) == 0:
-        return RouteSegments(detail="Route not found.")
-    return RouteSegments(segments=result["segments"], stations=result["stations"])
+async def get_best_route(
+        route: RouteParameters,
+        service: RouteService = Depends(get_route_service),
+        user: User = Depends(fastapi_users.current_user())
+):
+    if user:
+        result = await service.get_best_route(route.start, route.end, route.route_parameters, route.vehicle_parameters)
+        if len(result["segments"]) == 0 and len(result["stations"]) == 0:
+            return RouteSegments(detail="Route not found.")
+        return RouteSegments(segments=result["segments"], stations=result["stations"])
+
 
 
 @router.get("/users/me/routes", response_model=list)
-async def get_user_routes(user: User = Depends(fastapi_users.current_user()),
-                          service: RouteService = Depends(get_route_service)):
+async def get_user_routes(
+        user: User = Depends(fastapi_users.current_user()),
+        service: RouteService = Depends(get_route_service)
+):
     if user:
         routes = await service.get_user_routes(user.id)
         return [{"start": r.start, "end": r.end, "id": r.id} for r in routes]
@@ -58,16 +55,3 @@ async def get_user_route(route_id: int, user: User = Depends(fastapi_users.curre
         else:
             return {"details": "No such route"}
 
-# {
-#     "segments": {
-#         "segments": list
-#     }
-#
-#     ,
-#     "route": {
-#         "start": str,
-#         "end": str
-#     }
-#
-# }
-# segments list: [{"lat" : lat, "lon" : lon} ...]

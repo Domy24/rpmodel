@@ -2,9 +2,10 @@
 from .constants import COVERAGE_LIMIT
 from .utils import *
 from .station_search import *
+from ..serializers import EnvParameters, VehicleParameters
 
 
-async def route_planner(start, end, parameters):
+async def route_planner(start, end, vehicle_parameters: VehicleParameters, route_parameters: EnvParameters):
     try:
         start_edge = eval(start)
     except:
@@ -19,11 +20,19 @@ async def route_planner(start, end, parameters):
     arrival_segment = []
     route = []
     stations = []
+    env_parameters = {
+        "soc0": route_parameters.soc0,
+        "soc_min": route_parameters.soc_min,
+        "soh": route_parameters.soh,
+        "k": route_parameters.k,
+        "t": route_parameters.t,
+        "n_pass": route_parameters.n_pass
+    }
     while not search_ended:
         baseline = shortest_path(start_edge, end_edge)
         direct_route_edges = convert_from_point_to_edges(baseline)
         direct_route = Path(points=baseline)
-        feasibility = await direct_route.is_feasible(**parameters)
+        feasibility = await direct_route.is_feasible(**env_parameters, vehicle_parameters=vehicle_parameters)
         if feasibility:
             search_ended = True
             route = start_segment + direct_route_edges + arrival_segment
@@ -31,7 +40,7 @@ async def route_planner(start, end, parameters):
             numstop += 1
             if numstop % 2 == 1:
                 best_station, best_edges = await evaluate_start_to_station(baseline=baseline, start=start_edge,
-                                                                           parameters=parameters)
+                                                                           env_parameters=env_parameters, vehicle_parameters=vehicle_parameters)
                 if best_station is not None:
                     start_edge = best_station
                     start_segment += best_edges
@@ -40,7 +49,7 @@ async def route_planner(start, end, parameters):
                     return [], []
             else:
                 best_station, best_edges = await evaluate_station_to_end(baseline=baseline, end=end_edge,
-                                                                         parameters=parameters)
+                                                                         env_parameters=env_parameters, vehicle_parameters=vehicle_parameters)
                 if best_station is not None:
                     end_edge = best_station
                     arrival_segment = best_edges + arrival_segment

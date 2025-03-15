@@ -15,3 +15,5 @@ class Vehicle(Base):
     motor_efficiency: Mapped[float] = mapped_column(Float, nullable=False)
     front_area: Mapped[float] = mapped_column(Float, nullable=False)
     mu_r: Mapped[float] = mapped_column(Float, nullable=False)
+    vtype: Mapped[str] = mapped_column(String, nullable=False)
+    energy_usable: Mapped[float] = mapped_column(Float, nullable=False)

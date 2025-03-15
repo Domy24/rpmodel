@@ -2,13 +2,15 @@ from sqlalchemy import UUID
 
 from app.routes.planner.bidirectional_search import route_planner
 from app.routes.repository.repository import RouteRepository
+from app.routes.serializers import VehicleParameters, EnvParameters
+
 
 class RouteService:
     def __init__(self, session):
         self.dal = RouteRepository(session)
 
-    async def get_best_route(self, start: str, end: str, parameters: dict):
-        edges, stations = await route_planner(start, end, parameters)
+    async def get_best_route(self, start: str, end: str, route_parameters: EnvParameters, vehicle_parameters: VehicleParameters):
+        edges, stations = await route_planner(start, end, route_parameters=route_parameters, vehicle_parameters=vehicle_parameters)
         return {"segments": edges, "stations": stations}
 
     async def get_user_routes(self, user_id: UUID):

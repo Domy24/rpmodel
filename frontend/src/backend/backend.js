@@ -8,6 +8,8 @@ const API_BASE_URL = 'http://localhost:8000';
 const endpoints = {
   login: `${API_BASE_URL}/auth/jwt/login`,
   register: `${API_BASE_URL}/auth/register`,
+  verify: `${API_BASE_URL}/users/me`,
+  getVehicles: `${API_BASE_URL}/vehicles`
 };
 
 
@@ -76,6 +78,34 @@ export const register = (userData) => {
   });
 };
 
+export const verify = (token) => {
+  return new Promise((resolve, reject) => {
+      axios
+          .get(endpoints.verify)
+          .then((response) =>{
+            if(response) resolve(response.data)
+          })
+          .catch((error) => {
+            reject(error)
+          })
+  });
+}
+
+export const getVehicles = () => {
+console.log(axios.defaults.headers.common['Authorization'])
+  return new Promise((resolve, reject) => {
+      axios
+          .get(endpoints.getVehicles)
+          .then(
+              (response) => {
+                if(response) resolve(response.data)
+              }
+          )
+          .catch((error) => {
+            reject(error)
+          })
+  });
+}
 
 
 

@@ -1,3 +1,4 @@
+from datetime import datetime
 import uuid
 
 from fastapi_users import schemas
@@ -13,3 +14,4 @@ class UserCreate(schemas.BaseUserCreate):
 
 class UserUpdate(schemas.BaseUserUpdate):
     pass
+

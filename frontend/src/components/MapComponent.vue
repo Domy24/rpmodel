@@ -56,12 +56,9 @@
               {{ $form.soh.error.message }}
             </Message>
           </div>
-                    <div class="w-full sm:w-auto">
-            <label for="k" class="text-surface-900 dark:text-surface-0 font-medium mb-2 block">Driving style</label>
-            <InputText id="k" name="k" type="text" placeholder="Stile di guida" class="w-full p-2 mb-4"/>
-            <Message v-if="$form.k?.invalid" severity="error" size="small" variant="simple">
-              {{ $form.k.error.message }}
-            </Message>
+          <div class="w-full sm:w-auto">
+            <label for="drivingStyle" class="text-surface-900 dark:text-surface-0 font-medium mb-2 block">Driving style</label>
+                  <TreeSelect id="drivingStyle" v-model="drivingStyleSelectedValue" :options="drivingStyleOptions" placeholder="Select a driving style" class="w-full" />
           </div>
         </div>
         <div class="flex top-4 justify-between flex-wrap gap-4">
@@ -79,19 +76,16 @@
               {{ $form.temperature.error.message }}
             </Message>
           </div>
-          <div class="w-full sm:w-auto">
-            <label for="k" class="text-surface-900 dark:text-surface-0 font-medium mb-2 block">Driving style</label>
-            <InputText id="k" name="k" type="text" placeholder="Stile di guida" class="w-full p-2 mb-4"/>
-            <Message v-if="$form.k?.invalid" severity="error" size="small" variant="simple">
-              {{ $form.k.error.message }}
-            </Message>
-          </div>
               <div class="w-full sm:w-auto">
               <label for="k" class="text-surface-900 dark:text-surface-0 font-medium mb-2 block">Driving style</label>
               <InputText id="k" name="k" type="text" placeholder="Stile di guida" class="w-full p-2 mb-4"/>
               <Message v-if="$form.k?.invalid" severity="error" size="small" variant="simple">
                 {{ $form.k.error.message }}
             </Message>
+          </div>
+          <div class="w-full sm:w-auto">
+            <label for="vehicles" class="text-surface-900 dark:text-surface-0 font-medium mb-2 block">Driving style</label>
+                  <TreeSelect id="drivingStyle" v-model="vehiclesSelectedValue" :options="vehiclesOptions" placeholder="Select a vehicle" class="w-full" />
           </div>
         </div>
        <Button
@@ -110,11 +104,11 @@
 <script>
 import {MglMap, MglNavigationControl} from '@indoorequal/vue-maplibre-gl';
 import {InputText, Button} from 'primevue';
-import {ref} from 'vue';
 import {Form} from "@primevue/forms";
 import {yupResolver} from "@primevue/forms/resolvers/yup";
 import {parametersValidationSchema} from "@/validators/validators.js";
-
+import TreeSelect from 'primevue/treeselect';
+import {getVehicles} from "@/backend/backend.js";
 export default {
   name: "MapComponent",
   components: {
@@ -122,7 +116,8 @@ export default {
     MglNavigationControl,
     InputText,
     Button,
-    Form
+    Form,
+    TreeSelect
   },
   data() {
     return {
@@ -136,7 +131,12 @@ export default {
       temperature: "",
       k: "",
       isLoading: false,
-      resolver: yupResolver( parametersValidationSchema() )
+      resolver: yupResolver( parametersValidationSchema() ),
+      vehiclesSelectedValue: null,
+      vehiclesOptions : null,
+      vehiclesParam : null,
+      drivingStyleOptions : null,
+      drivingStyleSelectedValue : null
     }
   },
   methods: {
@@ -145,6 +145,20 @@ export default {
         alert("corretto")
       }
     }
+  },
+  mounted() {
+    getVehicles()
+        .then((data) => {
+            this.vehiclesParam = data.vehicles
+            this.vehiclesOptions = data.vehicles.map((element) => {
+              return { "key" : element.id , "label" : element.model }
+            })
+        })
+    this.drivingStyleOptions = [
+        {"key" : "0.5", "label" : "Sport Driving Style"},
+        {"key" : "0.6", "label" : "Average Driving Style"},
+        {"key" : "0.9", "label" : "Eco Driving Style"}
+    ]
   }
 }
 </script>

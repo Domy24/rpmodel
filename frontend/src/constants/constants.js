@@ -1,3 +1,5 @@
+import axios from "axios"
+import {useAuthStore} from "@/stores/auth.js";
 export const loginToasts = {
     successfulLogin: "Log in completato!",
     failedLogin: "Log in non riuscito!",

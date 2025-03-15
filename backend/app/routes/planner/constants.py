@@ -10,9 +10,9 @@ COUNTRY_ID_LIST = ("ALB, AND, ARM, AUT, AZE, BLR, BEL, BIH, BGR, CYP, HRV, DNK, 
                    "ISL, ITA, KAZ, XKX, LVA, LIE, LTU, LUX, MKD, MLT, MDA, MCO, MNE, NLD, NOR, POL, PRT, CZE, ROU, "
                    "RUS, SMR, SRB, SVK, SVN, ESP, SWE, CHE, TUR, UKR, HUN, VAT")
 VEHICLE_TYPES = {
-    "type1": "sedan",
-    "type2": "citycar",
-    "type3": "suv"
+    "type1": "Gran Turismo Sedan",
+    "type2": "City Car",
+    "type3": "Small SUV"
 }
 MAX_ATTEMPTS = 6
 MAX_POINTS = 500

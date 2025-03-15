@@ -16,6 +16,8 @@ const pinia = createPinia()
 import VueMaplibreGl from '@indoorequal/vue-maplibre-gl'
 import Card from "primevue/card";
 import {useAuthStore} from "@/stores/auth.js";
+import axios from "axios";
+import configureAxios from "@/config/config.js";
 
 app.use(pinia)
 app.use(ToastService)
@@ -54,8 +56,12 @@ app.component("InputText", InputText)
 app.component("Message", Message)
 app.component("Toast", Toast)
 app.component("Card", Card)
-app.mount('#app')
 
+const authStore = useAuthStore()
+authStore.initializeAuthStore();
+configureAxios(authStore)
+
+app.mount('#app')
 
 
 
