@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from app.db import async_session_maker
-from app.routes.serializers import Route, RouteSegments, RouteParameters
+from app.routes.serializers import Route, RouteSegments, RouteParameters, RouteRequest
 from app.routes.service.service import RouteService
 from app.users.auth import fastapi_users
 from app.users.models import User
@@ -15,12 +15,12 @@ async def get_route_service() -> RouteService:
 
 @router.post("/route", response_model=RouteSegments)
 async def get_best_route(
-        route: RouteParameters,
+        route: RouteRequest,
         service: RouteService = Depends(get_route_service),
         user: User = Depends(fastapi_users.current_user())
 ):
     if user:
-        result = await service.get_best_route(route.start, route.end, route.route_parameters, route.vehicle_parameters)
+        result = await service.get_best_route(route.parameters.start, route.parameters.end, route.parameters.route_parameters, route.parameters.vehicle_parameters)
         if len(result["segments"]) == 0 and len(result["stations"]) == 0:
             return RouteSegments(detail="Route not found.")
         return RouteSegments(segments=result["segments"], stations=result["stations"])

@@ -1,5 +1,7 @@
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql.functions import count, func
 
 from app.base import Base
 from app.vehicles.models import Vehicle
@@ -113,21 +115,26 @@ async def populate_vehicle_data(session: AsyncSession):
             "energy_usable": 90
         }
     ]
-    for vehicle_data in vehicles_data:
-        velocity_mps = vehicle_data["velocity_kmh"] / 3.6  # Convert velocity to m/s
-        vehicle = Vehicle(
-            model=vehicle_data["model"],
-            weight_kg=vehicle_data["weight_kg"],
-            cd_area=vehicle_data["cd_area"],
-            velocity_mps=velocity_mps,
-            motor_efficiency=vehicle_data["motor_efficiency"],
-            mu_r=vehicle_data["mu_r"],
-            front_area=vehicle_data["front_area"],
-            vtype=vehicle_data["vtype"],
-            energy_usable=vehicle_data["energy_usable"]
-        )
-        session.add(vehicle)
-    await session.commit()
+
+    result = await session.execute(select(func.count()).select_from(Vehicle))
+    count = result.scalar()
+
+    if count == 0:
+        for vehicle_data in vehicles_data:
+            velocity_mps = vehicle_data["velocity_kmh"] / 3.6  # Convert velocity to m/s
+            vehicle = Vehicle(
+                model=vehicle_data["model"],
+                weight_kg=vehicle_data["weight_kg"],
+                cd_area=vehicle_data["cd_area"],
+                velocity_mps=velocity_mps,
+                motor_efficiency=vehicle_data["motor_efficiency"],
+                mu_r=vehicle_data["mu_r"],
+                front_area=vehicle_data["front_area"],
+                vtype=vehicle_data["vtype"],
+                energy_usable=vehicle_data["energy_usable"]
+            )
+            session.add(vehicle)
+        await session.commit()
 
 
 async def initialize_database():

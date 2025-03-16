@@ -14,7 +14,15 @@ export const logInValidationSchema = () => {
         password: yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
     });
 }
-
+          // soc0: "",
+          // socMin: "",
+          // soh: "",
+          // nPass: "",
+          // temperature: "",
+          // start: "",
+          // end: "",
+          // vehicles: null,
+          // drivingStyle: null
 export const parametersValidationSchema = ()  => {
     return yup.object().shape({
             socMin: yup.number()
@@ -38,8 +46,12 @@ export const parametersValidationSchema = ()  => {
                 .min(-50, "Inserire valori superiori a -50°")
                 .max(50,"Inserire valori inferiori a 50°" )
                 .required(),
-            k: yup.number()
-                .oneOf([0.5, 0.6, 0.9], "Stile di guida errato!")
-                .required()
+            start: yup.string().required("E' necessario un punto di partenza."),
+            end: yup.string().required("E' necessario un punto di destinazione."),
+            vehicles: yup.object().required(),
+            drivingStyle: yup.object().required()
+                // yup.number()
+                // .oneOf([0.5, 0.6, 0.9], "Stile di guida errato!")
+                // .required(),
     });
 }

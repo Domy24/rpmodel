@@ -18,13 +18,8 @@ export const useAuthStore = defineStore("authStore", {
             this.authToken = null;
             localStorage.removeItem('token');
         },
-        getToken(){
-            const token = localStorage.getItem('token');
-            if (token){
-                this.setToken(token)
-            }else{
-
-            }
+        setExpiration(expiration){
+            this.isExpired = expiration
         },
         setToken(token) {
             this.authToken = token;
@@ -32,17 +27,16 @@ export const useAuthStore = defineStore("authStore", {
         },
         initializeAuthStore() {
             const token = localStorage.getItem('token')
-            console.log(token)
+
             if (token) {
                 this.login(token);
                 router.push({name: "home"})
             }
         },
         verifyToken() {
+            console.log(this.authToken)
             if(this.authToken){
-                verify(this.authToken)
-                .then((response) => true)
-                .catch((error) => false)
+                return verify(this.authToken)
             }else{
                 return false;
             }

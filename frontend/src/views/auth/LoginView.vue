@@ -62,7 +62,6 @@ export default{
                   this.$toast.add(response.toast)
               })
               .catch((error) => {
-                  console.log(error.error)
                   this.$toast.add(error.toast)
                 })
         }

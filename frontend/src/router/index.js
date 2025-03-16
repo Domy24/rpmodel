@@ -5,6 +5,9 @@ import RegisterView from "@/views/auth/RegisterView.vue";
 import MapComponent from "@/components/MapComponent.vue";
 import {useAuthStore} from "@/stores/auth.js";
 import {pathsName} from "@/constants/constants.js";
+import {verify} from "@/backend/backend.js";
+
+
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -46,21 +49,64 @@ const router = createRouter({
         }
     ],
 })
+//
+// router.beforeResolve((to, from, next) => {
+//         if(authStore.authToken){
+//         authStore.verifyToken()
+//             .then((response) => {
+//                 if ([pathsName.loginView, pathsName.registerView].includes(to.name)) {
+//                     next({ name: pathsName.homeView });
+//                 }
+//             })
+//             .catch((error) => {
+//                 console.log(to.name)
+//                 if([pathsName.routeView, pathsName.loginView, pathsName.registerView].includes(to.name)){
+//                     next({ name: pathsName.loginView })
+//                 }else{
+//                     next()
+//                 }
+//             });
+//     }else{
+//         if ([pathsName.routeView].includes(to.name)) {
+//                 next({ name: pathsName.loginView });
+//         }
+//     }
+// });
+
+
 
 router.beforeEach((to, from, next) => {
-    const authStore = useAuthStore();
-
-    if ([pathsName.loginView, pathsName.registerView].includes(to.name) && authStore.authToken) {
-        next({ name: 'home' });
-        return;
+const authStore = useAuthStore();
+    if(authStore.authToken){
+        authStore.verifyToken()
+            .then((response) => {
+                if ([pathsName.loginView, pathsName.registerView].includes(to.name)) {
+                    next({ name: pathsName.homeView });
+                }
+            })
+            .catch((error) => {
+                console.log(to.name)
+            });
+    }else{
+        if ([pathsName.routeView].includes(to.name)) {
+                next({ name: pathsName.loginView });
+        }
     }
 
+
     if (to.matched.some(record => record.meta.requiresAuth)) {
-        if (!authStore.authToken) {
-            next({ name: pathsName.loginView, query: { redirect: to.fullPath } });
-        } else {
-            next();
-        }
+        authStore.verifyToken()
+            .then((response) => {
+                next()
+            })
+            .catch((error) => {
+                next({ name: pathsName.loginView, query: { redirect: to.fullPath } });
+            })
+        // if (!authStore.authToken) {
+        //     next({ name: pathsName.loginView, query: { redirect: to.fullPath } });
+        // } else {
+        //     next();
+        // }
     } else {
         next();
     }

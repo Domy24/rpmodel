@@ -13,12 +13,14 @@ export const errors = {
     validationError: "Errore di validazione",
     usernameAlreadyExists: (name) => {
         return `Lo username ${name} già esiste.`
-    }
+    },
+    internalServerError: "Errore interno del server",
+    detailinternalServerError: "Errore interno."
 }
 
 export const pathsName= {
     routeView: "route",
     homeView: "home",
     loginView: "Login",
-    registerView: "Register"
+    registerView: "Register",
 }

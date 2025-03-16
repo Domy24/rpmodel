@@ -245,3 +245,7 @@ def max_distance(t, n_pass, soc0, soc_min, soh, k, energyUsable, vehicle="ciao")
         print(f"ea: {energy_available} - total distance: {total_distance}")
         time.sleep(0.5)
     return total_distance
+
+
+def swap_coordinates(route):
+    return [[point[1], point[0]] for point in route]

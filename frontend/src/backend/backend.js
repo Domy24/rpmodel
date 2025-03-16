@@ -6,15 +6,17 @@ const API_BASE_URL = 'http://localhost:8000';
 
 
 const endpoints = {
-  login: `${API_BASE_URL}/auth/jwt/login`,
-  register: `${API_BASE_URL}/auth/register`,
-  verify: `${API_BASE_URL}/users/me`,
-  getVehicles: `${API_BASE_URL}/vehicles`
+      login: `${API_BASE_URL}/auth/jwt/login`,
+      register: `${API_BASE_URL}/auth/register`,
+      verify: `${API_BASE_URL}/users/me`,
+      getVehicles: `${API_BASE_URL}/vehicles`,
+      getRoute: `${API_BASE_URL}/route`,
 };
 
 
 
 export const login = (username, password) => {
+    console.log("di nuovo")
   return new Promise((resolve, reject) => {
     axios
       .post(
@@ -28,6 +30,7 @@ export const login = (username, password) => {
       )
       .then((response) => {
         const data = response.data;
+        console.log(data.access_token)
         useAuthStore().setToken(data.access_token);
         const toast = {
           severity: 'success',
@@ -92,7 +95,6 @@ export const verify = (token) => {
 }
 
 export const getVehicles = () => {
-console.log(axios.defaults.headers.common['Authorization'])
   return new Promise((resolve, reject) => {
       axios
           .get(endpoints.getVehicles)
@@ -107,5 +109,49 @@ console.log(axios.defaults.headers.common['Authorization'])
   });
 }
 
+// parameters = {
+//   "start": "string",
+//   "end": "string",
+//   "route_parameters": {
+//     "soc0": 0,
+//     "soc_min": 0,
+//     "soh": 0,
+//     "k": 0,
+//     "t": 0,
+//     "n_pass": 0
+//   },
+//   "vehicle_parameters": {
+//     "model": "string",
+//     "weight_kg": 0,
+//     "cd_area": 0,
+//     "velocity_mps": 0,
+//     "motor_efficiency": 0,
+//     "front_area": 0,
+//     "mu_r": 0,
+//     "vtype": "string",
+//     "energy_usable": 0
+//   }
+// }
 
+
+export const getRoute = (parameters) => {
+    return new Promise((resolve, reject) =>{
+        axios
+            .post(endpoints.getRoute, {
+                 parameters
+            })
+            .then((response) => {
+                resolve(response.data)
+            })
+            .catch((error) => {
+                const toast = {
+                  severity: 'error',
+                  summary: `${errors.internalServerError}`,
+                  detail: `${errors.detailinternalServerError}`,
+                  life: 3000,
+                };
+                reject(error, toast)
+            })
+    });
+}
 

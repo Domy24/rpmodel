@@ -125,3 +125,6 @@ class RouteParameters(BaseModel):
     end: str
     route_parameters: EnvParameters
     vehicle_parameters: VehicleParameters
+
+class RouteRequest(BaseModel):
+    parameters: RouteParameters

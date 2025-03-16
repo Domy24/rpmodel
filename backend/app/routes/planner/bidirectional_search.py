@@ -56,4 +56,6 @@ async def route_planner(start, end, vehicle_parameters: VehicleParameters, route
                     stations.append(best_station)
                 else:
                     return [], []
+    route = swap_coordinates(route)
+    stations = swap_coordinates(stations)
     return route, stations
