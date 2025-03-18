@@ -15,7 +15,7 @@ class Route(Base):
     edges: Mapped[dict] = mapped_column(JSON, nullable=False)
     start: Mapped[str] = mapped_column(String, nullable=False)
     end: Mapped[str] = mapped_column(String, nullable=False)
-
+    stations: Mapped[list] = mapped_column(JSON, default=[])
     user_id: Mapped[str] = mapped_column(ForeignKey(column="user.id"), nullable=False)
 
     user: Mapped["user"] = relationship("User", back_populates="route")

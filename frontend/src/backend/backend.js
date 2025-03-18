@@ -2,17 +2,24 @@ import axios from 'axios';
 import {errors, loginToasts} from "@/constants/constants.js";
 import {useAuthStore} from "@/stores/auth.js";
 const API_BASE_URL = 'http://localhost:8000';
-
-
+const GH_BASE_URL = "https://graphhopper.com/api/1/geocode?"
+const ghKey = import.meta.env.VITE_APP_GRAPHHOPPER_API_KEY
+console.log(ghKey)
 
 const endpoints = {
-      login: `${API_BASE_URL}/auth/jwt/login`,
-      register: `${API_BASE_URL}/auth/register`,
-      verify: `${API_BASE_URL}/users/me`,
-      getVehicles: `${API_BASE_URL}/vehicles`,
-      getRoute: `${API_BASE_URL}/route`,
+  login: `${API_BASE_URL}/auth/jwt/login`,
+  register: `${API_BASE_URL}/auth/register`,
+  verify: `${API_BASE_URL}/users/me`,
+  getVehicles: `${API_BASE_URL}/vehicles`,
+  getRoute: `${API_BASE_URL}/route`,
+  getUserRoutes: `${API_BASE_URL}/users/me/routes`,
+
 };
 
+
+const ghEndpoint = {
+    autocomplete: (query)  => `${GH_BASE_URL}q=${query}&locale=it&layer=city&key=${ghKey}`
+}
 
 
 export const login = (username, password) => {
@@ -109,31 +116,6 @@ export const getVehicles = () => {
   });
 }
 
-// parameters = {
-//   "start": "string",
-//   "end": "string",
-//   "route_parameters": {
-//     "soc0": 0,
-//     "soc_min": 0,
-//     "soh": 0,
-//     "k": 0,
-//     "t": 0,
-//     "n_pass": 0
-//   },
-//   "vehicle_parameters": {
-//     "model": "string",
-//     "weight_kg": 0,
-//     "cd_area": 0,
-//     "velocity_mps": 0,
-//     "motor_efficiency": 0,
-//     "front_area": 0,
-//     "mu_r": 0,
-//     "vtype": "string",
-//     "energy_usable": 0
-//   }
-// }
-
-
 export const getRoute = (parameters) => {
     return new Promise((resolve, reject) =>{
         axios
@@ -147,7 +129,7 @@ export const getRoute = (parameters) => {
                 const toast = {
                   severity: 'error',
                   summary: `${errors.internalServerError}`,
-                  detail: `${errors.detailinternalServerError}`,
+                  detail: `${error}`,
                   life: 3000,
                 };
                 reject(error, toast)
@@ -155,3 +137,57 @@ export const getRoute = (parameters) => {
     });
 }
 
+
+export const getUserRoutes = () => {
+    return new Promise((resolve, reject) => {
+        axios
+            .get(endpoints.getUserRoutes)
+            .then((response) => {
+                resolve(response.data)
+            })
+            .catch((error) => {
+                const toast = {
+                  severity: 'error',
+                  summary: `${errors.internalServerError}`,
+                  detail: `${error}`,
+                  life: 3000,
+                };
+                reject({ error, toast })
+            })
+    })
+}
+
+export const getDetailUserRoute = (id) => {
+    return new Promise((resolve, reject) => {
+        axios
+            .get(`${endpoints.getUserRoutes}/${id}`)
+            .then((response) => {
+                resolve(response.data)
+            })
+            .catch((error) => {
+                console.log(error)
+                 const toast = {
+                  severity: 'error',
+                  summary: `${errors.internalServerError}`,
+                  detail: `error`,
+                  life: 3000,
+                };
+                reject({ error, toast })
+            })
+    })
+}
+
+export const completePlaces = (query) => {
+    return new Promise((resolve, reject) => {
+        console.log(ghEndpoint.autocomplete(query))
+        axios
+            .get(ghEndpoint.autocomplete(query))
+            .then((response) => {
+                const list = response.data.hits.map((place) => `${place.name !== undefined ? place.name : ''}${place.country !== undefined ? `, ${place.country}` : ''}${place.state !== undefined ? `, ${place.state}` : ''}`)
+                resolve(list)
+            })
+            .catch((error) => {
+                reject(error)
+            })
+    })
+}

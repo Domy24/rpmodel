@@ -23,4 +23,5 @@ export const pathsName= {
     homeView: "home",
     loginView: "Login",
     registerView: "Register",
+    userRoutesView: "Routes",
 }

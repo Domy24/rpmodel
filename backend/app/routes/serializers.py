@@ -6,16 +6,20 @@ from pydantic import BaseModel, Field, validator, root_validator
 class Route(BaseModel):
     start: str
     end: str
-
+    id: Optional[int]
 
 class RouteSegments(BaseModel):
     segments: Optional[list] = []
     stations: Optional[list] = []
     detail: Optional[str] = None
 
+class RouteUserDetail(BaseModel):
+    start: str
+    end: str
+    route: RouteSegments
 
-class RouteList(BaseModel):
-    routes: list[tuple]
+class RouteUserList(BaseModel):
+    routes: Optional[list[Route]] = []
 
 
 class VehicleParameters(BaseModel):
@@ -128,3 +132,4 @@ class RouteParameters(BaseModel):
 
 class RouteRequest(BaseModel):
     parameters: RouteParameters
+

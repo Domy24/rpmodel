@@ -5,7 +5,9 @@ import RegisterView from "@/views/auth/RegisterView.vue";
 import MapComponent from "@/components/MapComponent.vue";
 import {useAuthStore} from "@/stores/auth.js";
 import {pathsName} from "@/constants/constants.js";
-import {verify} from "@/backend/backend.js";
+import UserRoutesComponent from "@/components/UserRoutesComponent.vue";
+import UserRouteDetailComponent from "@/components/UserRouteDetailComponent.vue";
+
 
 
 
@@ -14,13 +16,8 @@ const router = createRouter({
     routes: [
         {
             path: '/',
-            name: 'home',
+            name: pathsName.homeView,
             component: HomeView,
-        },
-        {
-            path: '/about',
-            name: 'about',
-            component: () => import('../views/AboutView.vue'),
         },
         {
             path: "/auth",
@@ -28,12 +25,12 @@ const router = createRouter({
             children: [
                 {
                     path: "login",
-                    name: "Login",
+                    name: pathsName.loginView,
                     component: LoginView
                 },
                 {
                     path: "register",
-                    name: "Register",
+                    name: pathsName.registerView,
                     component: RegisterView
                 },
 
@@ -41,38 +38,29 @@ const router = createRouter({
         },
         {
             path: "/route",
-            name: "route",
+            name: pathsName.routeView,
             component: MapComponent,
             meta: {
                 requiresAuth: true
             }
-        }
+        },
+        {
+            path: "/users",
+            redirect: "me",
+            children: [
+                {
+                    path: "routes",
+                    name: pathsName.userRoutesView,
+                    component: UserRoutesComponent,
+                    meta: {
+                        requiresAuth: true
+                    }
+                }
+            ]
+        },
+
     ],
 })
-//
-// router.beforeResolve((to, from, next) => {
-//         if(authStore.authToken){
-//         authStore.verifyToken()
-//             .then((response) => {
-//                 if ([pathsName.loginView, pathsName.registerView].includes(to.name)) {
-//                     next({ name: pathsName.homeView });
-//                 }
-//             })
-//             .catch((error) => {
-//                 console.log(to.name)
-//                 if([pathsName.routeView, pathsName.loginView, pathsName.registerView].includes(to.name)){
-//                     next({ name: pathsName.loginView })
-//                 }else{
-//                     next()
-//                 }
-//             });
-//     }else{
-//         if ([pathsName.routeView].includes(to.name)) {
-//                 next({ name: pathsName.loginView });
-//         }
-//     }
-// });
-
 
 
 router.beforeEach((to, from, next) => {
@@ -102,11 +90,6 @@ const authStore = useAuthStore();
             .catch((error) => {
                 next({ name: pathsName.loginView, query: { redirect: to.fullPath } });
             })
-        // if (!authStore.authToken) {
-        //     next({ name: pathsName.loginView, query: { redirect: to.fullPath } });
-        // } else {
-        //     next();
-        // }
     } else {
         next();
     }

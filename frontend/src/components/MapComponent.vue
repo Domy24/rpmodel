@@ -1,6 +1,5 @@
 <template>
   <div class="map-container">
-    <!-- Mappa -->
     <mgl-map
         :key="mapKey"
         :map-style="style"
@@ -33,7 +32,7 @@
   <div class="mt-10">
     <Form
         v-slot=$form
-        class="col-span-1 bg-white rounded-lg shadow divide-y divide-gray-200 p-4"
+
         :initialValues
         :resolver="resolver"
         :validateOnValueUpdate="false"
@@ -50,6 +49,7 @@
         </template>
         </Card>
            </div>
+
         <div class="flex top-4 justify-between flex-wrap gap-4">
 
           <div class="w-full ">
@@ -77,9 +77,9 @@
             <label for="drivingStyle" class="text-surface-900 dark:text-surface-0 font-medium mb-2 block">Driving style</label>
                   <TreeSelect name="drivingStyle" :options="drivingStyleOptions" placeholder="Select a driving style" class="w-full sm:w-64" />
           </div>
-          <div class="w-full ">
+          <div class="w-full">
             <label for="start" class="text-surface-900 dark:text-surface-0 font-medium mb-2 block">Partenza</label>
-            <InputText id="start" name="start" type="text" placeholder="Partenza" class="w-full p-2 mb-4"/>
+            <AutoComplete id="start" name="start" type="text" placeholder="Partenza" :suggestions="suggestions" @complete="complete" :style="{ border: 'none', boxShadow: 'none', padding: 0}"/>
             <Message v-if="$form.start?.invalid" severity="error" size="small" variant="simple">
               {{ $form.start.error.message }}
             </Message>
@@ -107,7 +107,7 @@
           </div>
           <div class="w-full ">
             <label for="end" class="text-surface-900 dark:text-surface-0 font-medium mb-2 block">Destinazione</label>
-            <InputText id="end" name="end" type="text" placeholder="Destinazione" class="w-full p-2 mb-4"/>
+            <AutoComplete id="end" name="end" type="text" placeholder="Destinazione" :suggestions="suggestions" @complete="complete" :style="{ border: 'none', boxShadow: 'none' , padding: 0}"/>
             <Message v-if="$form.end?.invalid" severity="error" size="small" variant="simple">
               {{ $form.end.error.message }}
             </Message>
@@ -119,9 +119,10 @@
             label="Calcola percorso"
             icon="pi pi-arrow-circle-right"
             size="small"
+            style="margin-bottom: 20px;"
             class="border-6 mt-6"
           />
-          <Message v-if="routeNotFound" severity="error" size="small" variant="simple">
+          <Message v-if="routeNotFound" severity="error" size="small" style="padding: 12px" variant="simple">
           No route found.
         </Message>
       </div>
@@ -131,13 +132,14 @@
 
 <script>
 import {MglMap, MglNavigationControl, MglGeoJsonSource, MglLineLayer} from '@indoorequal/vue-maplibre-gl';
-import {InputText, Button, useToast} from 'primevue';
+import {InputText, Button, useToast, AutoComplete} from 'primevue';
 import {Form} from "@primevue/forms";
 import {yupResolver} from "@primevue/forms/resolvers/yup";
 import {parametersValidationSchema} from "@/validators/validators.js";
 import TreeSelect from 'primevue/treeselect';
-import {getRoute, getVehicles} from "@/backend/backend.js";
+import {completePlaces, getRoute, getVehicles} from "@/backend/backend.js";
 import {toRaw} from "vue";
+import {errors} from "@/constants/constants.js";
 export default {
   name: "MapComponent",
   components: {
@@ -148,21 +150,23 @@ export default {
     InputText,
     Button,
     Form,
-    TreeSelect
+    TreeSelect,
+    AutoComplete
   },
   data() {
     return {
       initialValues: {
-          soc0: 90,
-          socMin: 30,
-          soh: 80,
-          nPass: 3,
-          temperature: 22,
-          start: "Milano",
-          end: "Firenze",
+          soc0: null,
+          socMin: null,
+          soh: null,
+          nPass: null,
+          temperature: null,
+          start: "",
+          end: "",
           vehicles: null,
           drivingStyle: null
         },
+          suggestions: null,
           style: 'https://api.maptiler.com/maps/streets-v2/style.json?key=ssYZIhglJGSf9GYsHiOO',
           center:  [ 12.481633, 41.894431 ],
           zoom: 5,
@@ -225,7 +229,6 @@ export default {
                 this.isLoading = false
                 if(data.segments && data.segments.length > 0){
                   this.geojsonSource.features[0].geometry.coordinates = data.segments;
-                  this.center = data.segments[0];
                   const midIndex = Math.floor(data.segments.length / 2);
                   const midPoint = data.segments[midIndex];
                   this.center = [midPoint[0], midPoint[1]];
@@ -248,6 +251,20 @@ export default {
                     })
             })
       }
+    },
+    complete(event) {
+      completePlaces(event.query)
+          .then((places) => {
+            this.suggestions = places
+          })
+          .catch((error) => {
+            this.$toast.add({
+                  severity: 'error',
+                  summary: `${errors.internalServerError}`,
+                  detail: `${error}`,
+                  life: 3000,
+                })
+          })
     }
   },
   mounted() {
@@ -280,9 +297,7 @@ export default {
 },
 }
 </script>
-<!--      {key : 2, label : "Average Driving Style", data : 0.6},-->
-<!--      {key : 3, label : "Eco Driving Style", data: 0.9}-->
-<style lang="scss">
+<style scoped lang="scss">
 @import "maplibre-gl/dist/maplibre-gl.css";
 
 .map-container {
@@ -291,12 +306,16 @@ export default {
   align-items: center;
   width: 100%;
 }
-
+//.autocomplete-style{
+//  border: none !important;
+//  outline: none !important;
+//  box-shadow: none !important;
+//  background-color: transparent;
+//}
 .maplibregl-map {
   width: 100%;
   height: 550px;
 }
-
 .form-container {
   width: 100%;
   max-width: 600px;

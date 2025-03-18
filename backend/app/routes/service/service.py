@@ -19,5 +19,5 @@ class RouteService:
     async def get_route_by_id(self, route_id: int):
         return await self.dal.get_route_by_id(route_id)
 
-    async def add_user_route(self, start: str, end: str, segments: list, user_id: UUID):
-        return await self.dal.add_user_route(start, end, segments, user_id)
+    async def add_user_route(self, start: str, end: str, segments: list, user_id: UUID, stations: list):
+        return await self.dal.add_user_route(start, end, segments, user_id, stations)

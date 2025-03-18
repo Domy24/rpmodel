@@ -35,3 +35,11 @@ async def get_all_vehicles(
         )
         l.append(v)
     return VehicleList(vehicles=l)
+
+@router.post("/vehicles")
+async def create_vehicle(
+        vehicle : Vehicle,
+        user: User = Depends(fastapi_users.current_user()),
+        service: VehicleService = Depends(get_vehicle_service)
+        ):
+    return await service.create_vehicle(vehicle)

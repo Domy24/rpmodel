@@ -10,9 +10,7 @@
                     />
                 </svg>
 
-                <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Welcome Back</div>
-                <span class="primary-color dark:text-surface-200 font-medium leading-normal">Don't have an account?</span>
-                <a  class="font-medium no-underline ml-2 primary-color-text cursor-pointer">Create today!</a>
+                <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Sign up</div>
             </div>
 
             <div>

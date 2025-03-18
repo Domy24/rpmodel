@@ -9,7 +9,7 @@ export default {
                 label: 'Routes',
                 icon: 'pi pi-map',
                 command: () => {
-                  this.$router.push("/routes")
+                  this.$router.push("/users/routes")
                 }
             },
            {

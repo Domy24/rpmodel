@@ -206,6 +206,7 @@ def from_name_to_lat_lng(name):
         "q": name,
         "key": key
     }
+    print(name)
     response = requests.get(graphhopper_locations_base_url, params=params)
     lat = response.json()["hits"][0]["point"]["lat"]
     lon = response.json()["hits"][0]["point"]["lng"]

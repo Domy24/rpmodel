@@ -11,8 +11,10 @@
                 </svg>
 
                 <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Welcome Back</div>
-                <span class="primary-color dark:text-surface-200 font-medium leading-normal">Don't have an account?</span>
-                <a  class="font-medium no-underline ml-2 primary-color-text cursor-pointer">Create today!</a>
+                <span class="primary-color dark:text-surface-200 font-medium leading-normal">Non hai un account?</span>
+               <Button asChild v-slot="slotProps" variant="link">
+                  <RouterLink to="/auth/register" :class="slotProps.class">Sign up</RouterLink>
+              </Button>
             </div>
 
             <div>

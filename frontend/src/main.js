@@ -45,6 +45,7 @@ const MyPreset = definePreset(Aura, {
 });
 app.use(PrimeVue,{
     theme:{
+        prefix: "p",
         preset: MyPreset
     }
 })

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from app.db import async_session_maker
-from app.routes.serializers import Route, RouteSegments, RouteParameters, RouteRequest
+from app.routes.serializers import Route, RouteSegments, RouteRequest, RouteUserList, RouteUserDetail
 from app.routes.service.service import RouteService
 from app.users.auth import fastapi_users
 from app.users.models import User
@@ -27,31 +27,31 @@ async def get_best_route(
 
 
 
-@router.get("/users/me/routes", response_model=list)
+@router.get("/users/me/routes", response_model=RouteUserList)
 async def get_user_routes(
         user: User = Depends(fastapi_users.current_user()),
         service: RouteService = Depends(get_route_service)
 ):
     if user:
-        routes = await service.get_user_routes(user.id)
-        return [{"start": r.start, "end": r.end, "id": r.id} for r in routes]
-    return []
+        results = await service.get_user_routes(user.id)
+        routes = [Route(start=r.start, end=r.end, id=r.id) for r in results]
+        return RouteUserList(routes=routes)
 
 
 @router.post("/users/me/routes")
 async def add_user_route(segments: RouteSegments, route: Route, user: User = Depends(fastapi_users.current_user()),
                          service: RouteService = Depends(get_route_service)):
     if user:
-        await service.add_user_route(route.start, route.end, segments.segments, user.id)
+        await service.add_user_route(route.start, route.end, segments.segments, user.id, segments.stations)
 
 
-@router.get("/users/me/routes/{route_id}", response_model=dict)
+@router.get("/users/me/routes/{route_id}", response_model=RouteUserDetail)
 async def get_user_route(route_id: int, user: User = Depends(fastapi_users.current_user()),
                          service: RouteService = Depends(get_route_service)):
     if user:
         route = await service.get_route_by_id(route_id)
         if route:
-            return {"segments": route.edges, "start": route.start, "end": route.end}
+            return RouteUserDetail(start=route.start, end=route.end, route=RouteSegments(segments=route.edges, stations=route.stations))
         else:
             return {"details": "No such route"}
 
