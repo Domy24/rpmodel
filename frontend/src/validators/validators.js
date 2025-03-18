@@ -41,6 +41,7 @@ export const parametersValidationSchema = ()  => {
                 .required(),
             nPass: yup.number()
                 .integer("Il numero di passeggeri deve essere un intero.")
+                .min(0, "Non meno di 0 passeeggeri.")
                 .max(4, "Numero di passeggeri limitato a 5"),
             temperature: yup.number()
                 .min(-50, "Inserire valori superiori a -50°")
