@@ -5,8 +5,8 @@ export const loginToasts = {
     failedLogin: "Log in non riuscito!",
     successfulRegister: "Registrazione completata!",
     failedRegister: "Registrazione non completata!",
-    homeRedirect: "Sarai reindirizzto alla home.",
-    loginRedirect: "Sarai reindirizzto alla pagina di login."
+    homeRedirect: "Sarai reindirizzato alla home.",
+    loginRedirect: "Sarai reindirizzato alla pagina di login."
 }
 
 export const errors = {
