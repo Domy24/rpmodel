@@ -10,6 +10,7 @@ export const loginToasts = {
 }
 
 export const errors = {
+    logoutError: "Errore durante il logout.",
     validationError: "Errore di validazione",
     usernameAlreadyExists: (name) => {
         return `Lo username ${name} già esiste.`

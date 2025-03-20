@@ -1,12 +1,12 @@
 import {createRouter, createWebHistory} from 'vue-router'
+import {pathsName} from "@/constants/constants.js";
 import HomeView from '../views/HomeView.vue'
 import LoginView from "@/views/auth/LoginView.vue";
 import RegisterView from "@/views/auth/RegisterView.vue";
 import MapComponent from "@/components/MapComponent.vue";
 import {useAuthStore} from "@/stores/auth.js";
-import {pathsName} from "@/constants/constants.js";
 import UserRoutesComponent from "@/components/UserRoutesComponent.vue";
-import UserRouteDetailComponent from "@/components/UserRouteDetailComponent.vue";
+import {verify} from "@/backend/backend.js";
 
 
 
@@ -66,7 +66,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
 const authStore = useAuthStore();
     if(authStore.authToken){
-        authStore.verifyToken()
+        verify(authStore.authToken)
             .then((response) => {
                 if ([pathsName.loginView, pathsName.registerView].includes(to.name)) {
                     next({ name: pathsName.homeView });
@@ -83,7 +83,7 @@ const authStore = useAuthStore();
 
 
     if (to.matched.some(record => record.meta.requiresAuth)) {
-        authStore.verifyToken()
+        verify(authStore.authToken)
             .then((response) => {
                 next()
             })

@@ -1,13 +1,14 @@
 import axios from 'axios';
-import {errors, loginToasts} from "@/constants/constants.js";
+import {errors, loginToasts, pathsName} from "@/constants/constants.js";
 import {useAuthStore} from "@/stores/auth.js";
 const API_BASE_URL = 'http://localhost:8000';
 const GH_BASE_URL = "https://graphhopper.com/api/1/geocode?"
 const ghKey = import.meta.env.VITE_APP_GRAPHHOPPER_API_KEY
-console.log(ghKey)
+
 
 const endpoints = {
   login: `${API_BASE_URL}/auth/jwt/login`,
+  logout: `${API_BASE_URL}/auth/jwt/logout`,
   register: `${API_BASE_URL}/auth/register`,
   verify: `${API_BASE_URL}/users/me`,
   getVehicles: `${API_BASE_URL}/vehicles`,
@@ -23,7 +24,6 @@ const ghEndpoint = {
 
 
 export const login = (username, password) => {
-    console.log("di nuovo")
   return new Promise((resolve, reject) => {
     axios
       .post(
@@ -58,6 +58,26 @@ export const login = (username, password) => {
       });
   });
 };
+
+export const logout = () => {
+    return new Promise((resolve, reject) => {
+        axios
+            .post(endpoints.logout)
+            .then((response) => {
+                useAuthStore().logout()
+                resolve({redirect: pathsName.loginView})
+            })
+            .catch((error) => {
+                const toast = {
+                  severity: 'error',
+                  summary: `${errors.internalServerError}`,
+                  detail: `${errors.logoutError}`,
+                  life: 3000,
+                };
+                reject({ error: error, toast: toast})
+            })
+    })
+}
 
 export const register = (userData) => {
   return new Promise((resolve, reject) => {

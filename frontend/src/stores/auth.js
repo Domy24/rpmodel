@@ -1,5 +1,4 @@
 import {defineStore} from 'pinia';
-import router from "@/router/index.js";
 import {verify} from "@/backend/backend.js";
 
 export const useAuthStore = defineStore("authStore", {
@@ -30,15 +29,7 @@ export const useAuthStore = defineStore("authStore", {
 
             if (token) {
                 this.login(token);
-                router.push({name: "home"})
-            }
-        },
-        verifyToken() {
-            console.log(this.authToken)
-            if(this.authToken){
-                return verify(this.authToken)
-            }else{
-                return false;
+                //this.$router.push({name: "home"})
             }
         },
     },
