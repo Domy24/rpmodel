@@ -2,8 +2,7 @@ import axios from 'axios';
 import {errors, loginToasts, pathsName} from "@/constants/constants.js";
 import {useAuthStore} from "@/stores/auth.js";
 const API_BASE_URL = 'http://localhost:8000';
-const GH_BASE_URL = "https://graphhopper.com/api/1/geocode?"
-const ghKey = import.meta.env.VITE_APP_GRAPHHOPPER_API_KEY
+const PHOTON_BASE_URL = "https://photon.komoot.io/api/?"
 
 
 const endpoints = {
@@ -19,7 +18,7 @@ const endpoints = {
 
 
 const ghEndpoint = {
-    autocomplete: (query)  => `${GH_BASE_URL}q=${query}&locale=it&layer=city&key=${ghKey}`
+    autocomplete: (query)  => `${PHOTON_BASE_URL}q=${query}&lang=en&layer=city&limit=10`
 }
 
 
@@ -100,7 +99,7 @@ export const register = (userData) => {
         const toast = {
           severity: 'error',
           summary: `${loginToasts.failedRegister}`,
-          detail: `${errors.usernameAlreadyExists(userData.username)} Oppure c'è un errore interno.`,
+          detail: `${errors.usernameAlreadyExists(userData.username, userData.email)} Oppure c'è un errore interno.`,
           life: 3000,
         };
         reject({ toast, error });
@@ -203,7 +202,9 @@ export const completePlaces = (query) => {
         axios
             .get(ghEndpoint.autocomplete(query))
             .then((response) => {
-                const list = response.data.hits.map((place) => `${place.name !== undefined ? place.name : ''}${place.country !== undefined ? `, ${place.country}` : ''}${place.state !== undefined ? `, ${place.state}` : ''}`)
+                const list = response.data.features.map((place) => `${
+                    place.properties.name !== undefined ? place.properties.name : ''}${place.properties.country !== undefined ? `, ${place.properties.country}` : ''}${place.properties.state !== undefined ? `, ${place.properties.state}` : ''}`
+                )
                 resolve(list)
             })
             .catch((error) => {

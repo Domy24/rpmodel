@@ -12,8 +12,8 @@ export const loginToasts = {
 export const errors = {
     logoutError: "Errore durante il logout.",
     validationError: "Errore di validazione",
-    usernameAlreadyExists: (name) => {
-        return `Lo username ${name} già esiste.`
+    usernameAlreadyExists: (name, email) => {
+        return `Lo username ${name} o l'email: ${email} già esistono.`
     },
     internalServerError: "Errore interno del server",
     detailinternalServerError: "Errore interno."

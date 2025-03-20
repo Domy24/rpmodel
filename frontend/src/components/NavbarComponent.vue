@@ -12,6 +12,7 @@ export default {
            {
                 label: 'Routes',
                 icon: 'pi pi-map',
+                visible: this.authToken,
                 command: () => {
                   this.$router.push("/users/routes")
                 }
