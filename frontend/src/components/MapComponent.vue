@@ -32,7 +32,6 @@
   <div class="mt-10">
     <Form
         v-slot=$form
-
         :initialValues
         :resolver="resolver"
         :validateOnValueUpdate="false"
@@ -111,8 +110,22 @@
             <Message v-if="$form.end?.invalid" severity="error" size="small" variant="simple">
               {{ $form.end.error.message }}
             </Message>
+            <Message v-if="score" severity="info" size="large" variant="simple">
+              {{ `Score: ${this.score}` }}
+            </Message>
           </div>
         </div>
+        <Button
+              v-if="canAddRoute"
+              :loading="addRouteIsLoading"
+              type="button"
+              label="Salva percorso"
+              icon="pi pi-plus-circle"
+              size="small"
+              @click="addRoute"
+              style="margin-bottom: 20px;"
+              class="border-6 mt-6"
+          />
        <Button
             :loading="isLoading"
             type="submit"
@@ -137,9 +150,9 @@ import {Form} from "@primevue/forms";
 import {yupResolver} from "@primevue/forms/resolvers/yup";
 import {parametersValidationSchema} from "@/validators/validators.js";
 import TreeSelect from 'primevue/treeselect';
-import {completePlaces, getRoute, getVehicles} from "@/backend/backend.js";
+import {addRoute, completePlaces, getRoute, getVehicles} from "@/backend/backend.js";
 import {toRaw} from "vue";
-import {errors} from "@/constants/constants.js";
+import {errors, success} from "@/constants/constants.js";
 export default {
   name: "MapComponent",
   components: {
@@ -166,6 +179,8 @@ export default {
           vehicles: null,
           drivingStyle: null
         },
+          score: null,
+          canAddRoute: false,
           suggestions: null,
           style: 'https://api.maptiler.com/maps/streets-v2/style.json?key=ssYZIhglJGSf9GYsHiOO',
           center:  [ 12.481633, 41.894431 ],
@@ -176,6 +191,7 @@ export default {
           markers: [],
           resolver: yupResolver( parametersValidationSchema() ),
           isLoading: false,
+          addRouteIsLoading: false,
           geojsonSource: {
           type: 'FeatureCollection',
           features: [
@@ -208,9 +224,12 @@ export default {
       const dkey = Object.keys(drivingStyleValue)[0];
       const skey = Object.keys(vehiclesValue)[0];
       this.isLoading = true
+      this.canAddRoute = false
       if(valid){
         const selectedStyle = this.drivingStyleOptions.find(option => option.key == dkey);
         const selectedVehicle = this.vehiclesOptions.find(option => option.key == skey);
+        this.start = values.start
+        this.end = values.end
         const body =JSON.parse(JSON.stringify({
           start: values.start,
           end: values.end,
@@ -226,6 +245,7 @@ export default {
         }));
         getRoute(body)
             .then((data) => {
+                this.canAddRoute = true
                 this.isLoading = false
                 if(data.segments && data.segments.length > 0){
                   this.geojsonSource.features[0].geometry.coordinates = data.segments;
@@ -236,13 +256,16 @@ export default {
                         lat: station[0],
                         lon: station[1]
                       }));
+                  this.score = data.score
                   this.routeNotFound = false
                   this.mapKey++;
                 }else{
+                  this.canAddRoute = false
                   this.routeNotFound = true
                 }
             })
             .catch((result) => {
+                this.canAddRoute = false
                 this.isLoading = false
                 const { error, toast } = result
                  this.$toast
@@ -264,6 +287,33 @@ export default {
                   detail: `${error}`,
                   life: 3000,
                 })
+          })
+    },
+    addRoute({ valid, values }){
+      this.addRouteIsLoading = true
+      const body = {
+        segments: {
+          segments: this.geojsonSource.features[0].geometry.coordinates,
+          stations: this.markers,
+        },
+        route: {
+          start: this.start,
+          end: this.end
+        }
+      }
+      addRoute(body)
+          .then((response) => {
+            this.addRouteIsLoading = false
+            this.$toast.add({
+              severity: 'success',
+              summary: `${success.successfulAddedRoute}`,
+              life: 3000,
+            })
+          })
+          .catch( ({ error, toast }) => {
+            this.addRouteIsLoading = false
+            console.log(error)
+            this.$toast.add(toast)
           })
     }
   },
@@ -306,12 +356,6 @@ export default {
   align-items: center;
   width: 100%;
 }
-//.autocomplete-style{
-//  border: none !important;
-//  outline: none !important;
-//  box-shadow: none !important;
-//  background-color: transparent;
-//}
 .maplibregl-map {
   width: 100%;
   height: 550px;

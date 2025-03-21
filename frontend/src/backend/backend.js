@@ -212,3 +212,23 @@ export const completePlaces = (query) => {
             })
     })
 }
+
+
+export const addRoute = (parameters) => {
+    return new Promise((resolve, reject) => {
+        axios
+            .post(endpoints.getUserRoutes, parameters)
+            .then((response) => {
+                resolve(response.data)
+            })
+            .catch((error) => {
+                const toast = {
+                    severity: 'error',
+                    summary: `${errors.routeNotAdded}`,
+                    detail: `${error.response.data.detail}`,
+                    life: 3000,
+                };
+                reject({ error, toast })
+            })
+    })
+}

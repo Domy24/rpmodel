@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends
+from starlette.exceptions import HTTPException
+
 from app.db import async_session_maker
 from app.routes.serializers import Route, RouteSegments, RouteRequest, RouteUserList, RouteUserDetail
 from app.routes.service.service import RouteService
@@ -21,9 +23,9 @@ async def get_best_route(
 ):
     if user:
         result = await service.get_best_route(route.parameters.start, route.parameters.end, route.parameters.route_parameters, route.parameters.vehicle_parameters)
-        if len(result["segments"]) == 0 and len(result["stations"]) == 0:
+        if len(result["segments"]) == 0 and len(result["stations"]) == 0 and result["score"] == None:
             return RouteSegments(detail="Route not found.")
-        return RouteSegments(segments=result["segments"], stations=result["stations"])
+        return RouteSegments(segments=result["segments"], stations=result["stations"], score=result["score"])
 
 
 
@@ -42,7 +44,12 @@ async def get_user_routes(
 async def add_user_route(segments: RouteSegments, route: Route, user: User = Depends(fastapi_users.current_user()),
                          service: RouteService = Depends(get_route_service)):
     if user:
-        await service.add_user_route(route.start, route.end, segments.segments, user.id, segments.stations)
+        try:
+            await service.add_user_route(route.start, route.end, segments.segments, user.id, segments.stations)
+            return {"success": True}
+        except Exception as e:
+            print(str(e))
+            raise HTTPException(status_code=409, detail=str(e))
 
 
 @router.get("/users/me/routes/{route_id}", response_model=RouteUserDetail)
@@ -52,6 +59,5 @@ async def get_user_route(route_id: int, user: User = Depends(fastapi_users.curre
         route = await service.get_route_by_id(route_id)
         if route:
             return RouteUserDetail(start=route.start, end=route.end, route=RouteSegments(segments=route.edges, stations=route.stations))
-        else:
-            return {"details": "No such route"}
+
 

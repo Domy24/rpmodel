@@ -20,6 +20,7 @@ async def route_planner(start, end, vehicle_parameters: VehicleParameters, route
     arrival_segment = []
     route = []
     stations = []
+    baseline_length = 0
     env_parameters = {
         "soc0": route_parameters.soc0,
         "soc_min": route_parameters.soc_min,
@@ -31,6 +32,8 @@ async def route_planner(start, end, vehicle_parameters: VehicleParameters, route
     while not search_ended:
         baseline = shortest_path(start_edge, end_edge)
         direct_route_edges = convert_from_point_to_edges(baseline)
+        if numstop == 0:
+            baseline_length = calculate_distance(direct_route_edges)
         direct_route = Path(points=baseline)
         feasibility = await direct_route.is_feasible(**env_parameters, vehicle_parameters=vehicle_parameters)
         if feasibility:
@@ -46,7 +49,7 @@ async def route_planner(start, end, vehicle_parameters: VehicleParameters, route
                     start_segment += best_edges
                     stations.append(best_station)
                 else:
-                    return [], []
+                    return [], [], None
             else:
                 best_station, best_edges = await evaluate_station_to_end(baseline=baseline, end=end_edge,
                                                                          env_parameters=env_parameters, vehicle_parameters=vehicle_parameters)
@@ -55,7 +58,8 @@ async def route_planner(start, end, vehicle_parameters: VehicleParameters, route
                     arrival_segment = best_edges + arrival_segment
                     stations.append(best_station)
                 else:
-                    return [], []
+                    return [], [], None
+    score = baseline_length / calculate_distance(route)
     route = swap_coordinates(route)
     stations = swap_coordinates(stations)
-    return route, stations
+    return route, stations, score

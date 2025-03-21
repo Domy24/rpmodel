@@ -12,6 +12,7 @@ class RouteSegments(BaseModel):
     segments: Optional[list] = []
     stations: Optional[list] = []
     detail: Optional[str] = None
+    score: Optional[float] = None
 
 class RouteUserDetail(BaseModel):
     start: str
@@ -95,7 +96,7 @@ class EnvParameters(BaseModel):
 
     @validator("soc_min")
     def soc_min_valid(cls, value):
-        if not 0 < value < 100:
+        if not 0 < value <= 100:
             raise ValueError("SoCmin deve essere compreso tra 0 e 100%.")
         return value/100
 

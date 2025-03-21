@@ -9,7 +9,7 @@
         <Toast/>
     </div>
     <div>
-    <UserRouteDetailComponent v-if="routeDetails.coordinates.length > 0" :key="routeDetails.id" :coordinates="routeDetails.coordinates" />
+    <UserRouteDetailComponent v-if="routeDetails.coordinates.length > 0" :key="routeDetails.id" :coordinates="routeDetails.coordinates" :markers="routeDetails.markers"/>
   </div>
 </template>
 
@@ -36,7 +36,8 @@ export default {
             selectedProduct: null,
             routeDetails: {
               coordinates : [],
-              id: null
+              id: null,
+              markers: []
             }
         };
     },
@@ -44,25 +45,27 @@ export default {
         onRowClick(event) {
             getDetailUserRoute(event.data.id)
                 .then((response) => {
+                    console.log(response.route.stations)
                     this.routeDetails.coordinates = response.route.segments
-                    this.routeDetails.id = Math.random()
-                    console.log(response.route.segments)
+                    this.routeDetails.markers = response.route.stations
+                    this.routeDetails.id = event.data.id
                 })
                 .catch((result) => {
-                  console.log(result)
                   const { error, toast } = result
-                  this.$toast.add({toast})
+                  this.$toast.add(toast)
                 })
         },
     },
   mounted() {
     getUserRoutes()
         .then((data) => {
-          this.products = data.routes
+          if(data.routes.length > 0){
+            this.products = data.routes
+          }
         })
         .catch((result) => {
           const { error, toast } = result
-          this.$toast.add({toast})
+          this.$toast.add(toast)
         })
   }
 }

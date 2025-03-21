@@ -54,6 +54,10 @@ export default {
   key: {
     type: number,
     required: true
+  },
+  markers: {
+    type: Array,
+    required: true,
   }
 },
   data () {
@@ -90,6 +94,12 @@ export default {
       immediate: true,
       handler(newCoordinates) {
         this.geojsonSource.features[0].geometry.coordinates = newCoordinates;
+      },
+    },
+    markers: {
+      immediate: true,
+      handler(newMarkers) {
+        this.markers = newMarkers;
       },
     },
   },
