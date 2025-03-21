@@ -10,7 +10,7 @@ from app.routes.planner.spath import shortest_path
 from app.routes.planner.utils import calculate_distance, find_common_subsequences, convert_from_point_to_edges, \
     compute_k_point, divide_and_extract, swap_coordinates
 
-KEY = os.getenv("OCM_SECRET_KEY")
+
 from app.routes.planner.constants import ocm_base_url, MAX_DISTANCE, MIN_DISTANCE, MAX_STATIONS, MAX_RESULTS, DISTANCE, \
     COUNTRY_ID_LIST, MAX_ATTEMPTS, MAX_POINTS
 
