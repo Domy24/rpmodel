@@ -1,7 +1,7 @@
 <script>
 import Menubar from "primevue/menubar";
 import * as backend from "@/backend/backend.js";
-import {errors} from "@/constants/constants.js";
+import {errors, pathsName} from "@/constants/constants.js";
 import {verify} from "@/backend/backend.js";
 import {useAuthStore} from "@/stores/auth.js";
 export default {
@@ -11,10 +11,17 @@ export default {
       items: [
            {
                 label: 'Routes',
-                icon: 'pi pi-map',
+                icon: 'pi pi-bars',
                 visible: this.authToken,
                 command: () => {
-                  this.$router.push("/users/routes")
+                  this.$router.push({name: pathsName.userRoutesView})
+                }
+            },
+              {
+                label: 'EVRP',
+                icon: 'pi pi-map',
+                command: () => {
+                  this.$router.push({ name: pathsName.routeView})
                 }
             },
            {
@@ -56,13 +63,16 @@ export default {
             if (newToken) {
               verify(newToken)
                 .then(() => {
-                  this.items[1].visible = true;
+                  this.items[2].visible = true;
+                  this.items[0].visible = true;
                 })
                 .catch(() => {
-                  this.items[1].visible = false;
+                  this.items[2].visible = false;
+                  this.items[0].visible = false;
                 });
             } else {
-              this.items[1].visible = false;
+              this.items[2].visible = false;
+              this.items[0].visible = false;
             }
           },
         },
