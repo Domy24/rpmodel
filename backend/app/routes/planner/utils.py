@@ -211,6 +211,7 @@ def from_name_to_lat_lng(name):
     lat = response.json()["hits"][0]["point"]["lat"]
     lon = response.json()["hits"][0]["point"]["lng"]
     point = (lat, lon)
+    print(point)
     return point
 
 

@@ -18,3 +18,6 @@ ocm:
 
 network:
 	docker network create shared_network
+
+initmigrations:
+	docker compose -f ${env}.yaml exec backend alembic init migrations

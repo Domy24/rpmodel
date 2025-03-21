@@ -1,3 +1,9 @@
+<template>
+    <div class="card">
+        <Menubar :model="items" />
+    </div>
+</template>
+
 <script>
 import Menubar from "primevue/menubar";
 import * as backend from "@/backend/backend.js";
@@ -52,7 +58,6 @@ export default {
     computed: {
     authToken() {
       const authStore = useAuthStore();
-      console.log(authStore.authToken)
       return authStore.authToken !== null;
     },
   },
@@ -78,13 +83,21 @@ export default {
         },
     },
   mounted() {
-    this.authToken;
-  },
+    if (this.authToken) {
+        verify(this.authToken)
+            .then(() => {
+                this.items[2].visible = true;
+                this.items[0].visible = true;
+            })
+            .catch(() => {
+                this.items[2].visible = false;
+                this.items[0].visible = false;
+            });
+    } else {
+        this.items[2].visible = false;
+        this.items[0].visible = false;
+    }
+}
+
 }
 </script>
-
-<template>
-    <div class="card">
-        <Menubar :model="items" />
-    </div>
-</template>

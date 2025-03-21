@@ -6,7 +6,6 @@ from app.routes.serializers import Route, RouteSegments, RouteRequest, RouteUser
 from app.routes.service.service import RouteService
 from app.users.auth import fastapi_users
 from app.users.models import User
-
 router = APIRouter()
 
 
