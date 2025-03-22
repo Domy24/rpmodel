@@ -36,3 +36,10 @@ make initmigrations
 ```
 
 Note: If you need to reset migrations, delete the backend/migrations folder along with the versions subfolder and the env.py file. Ensure that these files are properly recreated and re-configured as part of the reset process.
+The repository contains the migrations folder, so the env.py file, if the migrations have problems, delete the migrations folder, run:
+
+```
+make initmigrations
+```
+
+and replace the env.py new file, with the saved env.py file. I pushed the migrations file because contains the env.py configured file.
