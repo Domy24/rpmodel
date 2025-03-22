@@ -43,3 +43,8 @@ make initmigrations
 ```
 
 and replace the env.py new file, with the saved env.py file. I pushed the migrations file because contains the env.py configured file.
+
+
+## API key
+
+In the file .envs/.envs.fastapi enter your graphhopper api key (https://www.graphhopper.com/)
