@@ -42,7 +42,7 @@ The repository contains the migrations folder, so the env.py file, if the migrat
 make initmigrations
 ```
 
-and replace the env.py new file, with the saved env.py file. I pushed the migrations file because contains the env.py configured file.
+and replace the env.py new file, with the saved env.py file. The repository contains the env.py file correctly configured.
 
 
 ## API key
