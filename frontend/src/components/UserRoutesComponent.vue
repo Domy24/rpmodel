@@ -45,7 +45,6 @@ export default {
         onRowClick(event) {
             getDetailUserRoute(event.data.id)
                 .then((response) => {
-                    console.log(response.route.stations)
                     this.routeDetails.coordinates = response.route.segments
                     this.routeDetails.markers = response.route.stations
                     this.routeDetails.id = event.data.id

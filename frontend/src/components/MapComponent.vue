@@ -312,7 +312,6 @@ export default {
           })
           .catch( ({ error, toast }) => {
             this.addRouteIsLoading = false
-            console.log(error)
             this.$toast.add(toast)
           })
     }

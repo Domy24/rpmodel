@@ -36,7 +36,6 @@ export const login = (username, password) => {
       )
       .then((response) => {
         const data = response.data;
-        console.log(data.access_token)
         useAuthStore().setToken(data.access_token);
         const toast = {
           severity: 'success',
@@ -184,7 +183,6 @@ export const getDetailUserRoute = (id) => {
                 resolve(response.data)
             })
             .catch((error) => {
-                console.log(error)
                  const toast = {
                   severity: 'error',
                   summary: `${errors.internalServerError}`,
@@ -198,7 +196,6 @@ export const getDetailUserRoute = (id) => {
 
 export const completePlaces = (query) => {
     return new Promise((resolve, reject) => {
-        console.log(ghEndpoint.autocomplete(query))
         axios
             .get(ghEndpoint.autocomplete(query))
             .then((response) => {

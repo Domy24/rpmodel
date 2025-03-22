@@ -73,7 +73,7 @@ const authStore = useAuthStore();
                 }
             })
             .catch((error) => {
-                console.log(to.name)
+                next({ name: pathsName.loginView })
             });
     }else{
         if ([pathsName.routeView].includes(to.name)) {

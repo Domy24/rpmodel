@@ -26,7 +26,6 @@ class Path(BaseModel):
             "t": t,
             "n_pass": n_pass
         }
-        print(t, n_pass, soc0, soc_min, soh, k)
         n_edges = len(self.points) - 1
         feasible = True
         counter = 1

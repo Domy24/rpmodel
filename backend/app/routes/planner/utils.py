@@ -206,12 +206,10 @@ def from_name_to_lat_lng(name):
         "q": name,
         "key": key
     }
-    print(name)
     response = requests.get(graphhopper_locations_base_url, params=params)
     lat = response.json()["hits"][0]["point"]["lat"]
     lon = response.json()["hits"][0]["point"]["lng"]
     point = (lat, lon)
-    print(point)
     return point
 
 
@@ -231,7 +229,6 @@ def max_distance(t, n_pass, soc0, soc_min, soh, k, energyUsable, vehicle="ciao")
     total_distance = 0
     actual_speed = 0
     flag = True
-    print(energy_available)
     while energy_available > 0 and flag:
         next_speed = driverMaxSpeed(k)
         acc = next_speed - actual_speed
@@ -244,7 +241,6 @@ def max_distance(t, n_pass, soc0, soc_min, soh, k, energyUsable, vehicle="ciao")
             break
         actual_speed += acc
         total_distance += actual_speed
-        print(f"ea: {energy_available} - total distance: {total_distance}")
         time.sleep(0.5)
     return total_distance
 

@@ -29,7 +29,6 @@ class RouteRepository:
                 cast(RouteDB.stations, String) == stations_json,
             )
         )
-        print(cast(RouteDB.edges, String))
         if existing_route.scalar_one_or_none():
             raise Exception("Object already exists")
 

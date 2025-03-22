@@ -12,6 +12,7 @@ import {verify} from "@/backend/backend.js";
 import {useAuthStore} from "@/stores/auth.js";
 export default {
   name: "Navbar",
+  components: Menubar,
   data(){
     return {
       items: [

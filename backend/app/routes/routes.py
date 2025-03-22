@@ -47,7 +47,6 @@ async def add_user_route(segments: RouteSegments, route: Route, user: User = Dep
             await service.add_user_route(route.start, route.end, segments.segments, user.id, segments.stations)
             return {"success": True}
         except Exception as e:
-            print(str(e))
             raise HTTPException(status_code=409, detail=str(e))
 
 
