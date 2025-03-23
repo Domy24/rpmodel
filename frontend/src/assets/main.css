@@ -1,0 +1,11 @@
+@import "primeicons/primeicons.css";
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&display=swap');
+@import 'maplibre-gl/dist/maplibre-gl.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary-color: #C1946D; /* Nuovo colore primario */
+  --primary-color-text: #3D1E17; /* Colore del testo per pulsanti primari */
+}

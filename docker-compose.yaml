@@ -1,0 +1,57 @@
+version: "3.8"
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    stdin_open: true
+    tty: true
+    command: bash -c "npm run dev -- --host"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    env_file:
+      - .envs/.env.fastapi
+    depends_on:
+      database:
+        condition: service_healthy
+    command: bash -c "uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    networks:
+      - shared_network
+
+  database:
+    image: postgres:14
+    container_name: postgres_db
+    ports:
+      - "5432:5432"
+    env_file:
+      - .envs/.env.postgres
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - shared_network
+
+networks:
+  shared_network:
+    external: true
