@@ -1,8 +1,8 @@
-This project is a beta electric vehicle route planner, implemented with fastapi and vue.js.
+This project is a beta electric vehicle route planner, implemented with FastAPI and Vue.js.
 
 To try out the project, follow these steps:
 
-First, set up di API key of graphhopper and maptiler:
+First, set up the API keys of graphhopper and maptiler:
 
 ## API key
 
