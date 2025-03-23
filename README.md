@@ -1,6 +1,16 @@
 This project is a beta electric vehicle route planner, implemented with fastapi and vue.js.
 
 To try out the project, follow these steps:
+
+First, set up di API key of graphhopper and maptiler:
+
+## API key
+
+1. In the file .envs/.envs.fastapi enter your graphhopper api key (https://www.graphhopper.com)
+
+2. Create a .env file in frontend folder and insert: VITE_MAPTILER_KEY=YOUR_MAPTILER_API_KEY, replacing YOUR_MAPTILER_API_KEY with a maptiler key (https://cloud.maptiler.com)
+
+
 ```
 make network
 ```
@@ -44,7 +54,8 @@ make initmigrations
 
 and replace the env.py new file, with the saved env.py file. The repository contains the env.py file correctly configured.
 
+## env
 
-## API key
+in .envs folder you can modify the env config for the db user and the fastapi config.
 
-In the file .envs/.envs.fastapi enter your graphhopper api key (https://www.graphhopper.com/)
+
