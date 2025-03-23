@@ -6,10 +6,11 @@ First, set up di API key of graphhopper and maptiler:
 
 ## API key
 
-1. In the file .envs/.envs.fastapi enter your graphhopper api key (https://www.graphhopper.com)
+1. In the file .envs/.env.fastapi enter your graphhopper api key (https://www.graphhopper.com)
 
 2. Create a .env file in frontend folder and insert: VITE_MAPTILER_KEY=YOUR_MAPTILER_API_KEY, replacing YOUR_MAPTILER_API_KEY with a maptiler key (https://cloud.maptiler.com)
 
+After this you are ready to run:
 
 ```
 make network
